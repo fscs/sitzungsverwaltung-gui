@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
   };
   outputs = { self, nixpkgs }:
     let
@@ -26,9 +26,10 @@
               nativeBuildInputs = [
                 pkgs.flutter
                 pkgs.google-chrome
+                pkgs.chromium
               ];
               shellHook = ''
-                export CHROME_EXECUTABLE="${pkgs.google-chrome}/bin/google-chrome-stable"
+                export CHROME_EXECUTABLE="${pkgs.chromium}/bin/chromium"
               '';
             };
         };
