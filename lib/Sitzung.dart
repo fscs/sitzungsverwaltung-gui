@@ -1,11 +1,12 @@
 import 'dart:convert';
 
+import 'package:sitzungsverwaltung_gui/Top.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
 
 class Sitzung {
   final SitzungKind kind;
-  final List<int> id;
+  final UuidValue id;
   final DateTime datetime;
   final String location;
 
@@ -19,7 +20,7 @@ class Sitzung {
   factory Sitzung.fromJson(Map<String, dynamic> json) {
     return Sitzung(
       kind: SitzungKind.values.byName(json['kind']),
-      id: Uuid.parse(json['id']),
+      id: UuidValue.fromString(json['id']),
       datetime: DateTime.parse(json['datetime']),
       location: json['location'] as String,
     );
@@ -37,6 +38,22 @@ class Sitzung {
       return sitzungen;
     } else {
       throw Exception('Failed to load Sitzung');
+    }
+  }
+
+  static Future<List<TopWithAntraege>> fetchTopWithAntraege(uuid) async {
+    final response =
+        await http.get(Uri.parse('https://fscs.hhu.de/api/sitzungen/$uuid/'));
+
+    if (response.statusCode == 200) {
+      var list = json.decode(utf8.decode(response.bodyBytes))['tops'] as List;
+
+      List<TopWithAntraege> tops =
+          list.map((i) => TopWithAntraege.fromJson(i)).toList();
+
+      return tops;
+    } else {
+      throw Exception('Failed to load Top');
     }
   }
 }

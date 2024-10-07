@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:sitzungsverwaltung_gui/Sitzung.dart';
 import 'package:sitzungsverwaltung_gui/Top.dart';
 import 'package:uuid/uuid.dart';
+import 'package:http/http.dart' as http;
 
 class SitzungWithTops {
   final SitzungKind kind;

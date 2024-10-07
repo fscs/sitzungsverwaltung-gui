@@ -1,7 +1,8 @@
+import 'package:sitzungsverwaltung_gui/Antrag.dart';
 import 'package:uuid/uuid.dart';
 
 class Top {
-  final Uuid id;
+  final UuidValue id;
   final TopKind kind;
   final String name;
   final int weight;
@@ -14,21 +15,38 @@ class Top {
   });
 
   factory Top.fromJson(Map<String, dynamic> json) {
-    return switch (json) {
-      {
-        'id': Uuid id,
-        'kind': TopKind kind,
-        'name': String name,
-        'weight': int weight,
-      } =>
-        Top(
-          kind: kind,
-          id: id,
-          name: name,
-          weight: weight,
-        ),
-      _ => throw const FormatException('Failed to load Top.'),
-    };
+    return Top(
+      kind: TopKind.values.byName(json['kind']),
+      id: UuidValue.fromString(json['id']),
+      name: json['name'] as String,
+      weight: json['weight'] as int,
+    );
+  }
+}
+
+class TopWithAntraege {
+  final UuidValue id;
+  final TopKind kind;
+  final String name;
+  final int weight;
+  final List<Antrag> antraege;
+
+  const TopWithAntraege({
+    required this.kind,
+    required this.id,
+    required this.name,
+    required this.weight,
+    required this.antraege,
+  });
+
+  factory TopWithAntraege.fromJson(Map<String, dynamic> json) {
+    return TopWithAntraege(
+        kind: TopKind.values.byName(json['kind']),
+        id: UuidValue.fromString(json['id']),
+        name: json['name'] as String,
+        weight: json['weight'] as int,
+        antraege:
+            (json['anträge'] as List).map((i) => Antrag.fromJson(i)).toList());
   }
 }
 
