@@ -79,51 +79,48 @@ class _SitzungsViewState extends State<SitzungView> {
           _contentsAntraege = ListView.builder(
               itemCount: antraege.length,
               itemBuilder: (context, index) {
-                return Flexible(
-                  child: Container(
-                    height: 50,
-                    color: Colors.white,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Draggable<DragAndDropItem>(
-                            data: DragAndDropItem(
-                                child: Container(
-                              height: 50,
-                              color: Colors.white,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 8, bottom: 4),
-                                      child: Text(
-                                        antraege[index].title,
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16),
-                                      ),
+                return Container(
+                  height: 50,
+                  color: Colors.white,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Draggable<DragAndDropItem>(
+                          data: DragAndDropItem(
+                              child: Container(
+                            height: 50,
+                            color: Colors.white,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 8, bottom: 4),
+                                    child: Text(
+                                      antraege[index].title,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16),
                                     ),
                                   ),
-                                ],
-                              ),
-                            )),
-                            feedback: Text(antraege[index].title,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16)),
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 8, bottom: 4),
-                              child: Text(
-                                antraege[index].title,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
+                                ),
+                              ],
+                            ),
+                          )),
+                          feedback: Text(antraege[index].title,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16)),
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8, bottom: 4),
+                            child: Text(
+                              antraege[index].title,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 );
               })
