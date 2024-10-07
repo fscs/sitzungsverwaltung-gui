@@ -1,3 +1,4 @@
+import 'package:drag_and_drop_lists/drag_and_drop_list_interface.dart';
 import 'package:drag_and_drop_lists/drag_and_drop_lists.dart';
 import 'package:flutter/material.dart';
 import 'package:sitzungsverwaltung_gui/Antrag.dart';
@@ -17,7 +18,7 @@ class _SitzungsViewState extends State<SitzungView> {
   final UuidValue id;
   _SitzungsViewState(this.id);
   late List<DragAndDropList> _contents;
-  late List<DragAndDropList> _contentsAntraege;
+  late Widget _contentsAntraege;
   late Future<List<TopWithAntraege>> futureTops;
   late Future<List<Antrag>> futureAntraege;
 
@@ -75,50 +76,57 @@ class _SitzungsViewState extends State<SitzungView> {
 
     futureAntraege = Antrag.fetchAntraege();
     futureAntraege.then((antraege) => {
-          _contentsAntraege = List.generate(1, (index) {
-            return DragAndDropList(
-              header: const Column(
-                children: <Widget>[
-                  Row(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(left: 8, bottom: 4),
-                        child: Text(
-                          'Alle Anträge',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              children: <DragAndDropItem>[
-                for (var antrag in antraege)
-                  DragAndDropItem(
-                    child: Container(
-                      height: 50,
-                      color: Colors.white,
-                      child: Row(
-                        children: [
-                          Expanded(
+          _contentsAntraege = ListView.builder(
+              itemCount: antraege.length,
+              itemBuilder: (context, index) {
+                return Flexible(
+                  child: Container(
+                    height: 50,
+                    color: Colors.white,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Draggable<DragAndDropItem>(
+                            data: DragAndDropItem(
+                                child: Container(
+                              height: 50,
+                              color: Colors.white,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 8, bottom: 4),
+                                      child: Text(
+                                        antraege[index].title,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )),
+                            feedback: Text(antraege[index].title,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 16)),
                             child: Padding(
                               padding:
                                   const EdgeInsets.only(left: 8, bottom: 4),
                               child: Text(
-                                antrag.title,
+                                antraege[index].title,
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 16),
                               ),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
-              ],
-            );
-          })
+                );
+              })
         });
   }
 
@@ -157,6 +165,8 @@ class _SitzungsViewState extends State<SitzungView> {
                                 children: _contents,
                                 onItemReorder: _onItemReorder,
                                 onListReorder: _onListReorder,
+                                onItemAdd: _onItemAdd,
+                                onListAdd: _onListAdd,
                                 listPadding: const EdgeInsets.symmetric(
                                     horizontal: 15, vertical: 10),
                                 itemDivider: Divider(
@@ -205,59 +215,7 @@ class _SitzungsViewState extends State<SitzungView> {
                                   ),
                                 ),
                               )),
-                              Expanded(
-                                  child: DragAndDropLists(
-                                children: _contentsAntraege,
-                                onItemReorder: _onItemReorder,
-                                onListReorder: _onListReorder,
-                                listPadding: const EdgeInsets.symmetric(
-                                    horizontal: 15, vertical: 10),
-                                itemDivider: Divider(
-                                  thickness: 2,
-                                  height: 2,
-                                  color: backgroundColor,
-                                ),
-                                itemDecorationWhileDragging: BoxDecoration(
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.5),
-                                      spreadRadius: 2,
-                                      blurRadius: 3,
-                                      offset: const Offset(
-                                          0, 0), // changes position of shadow
-                                    ),
-                                  ],
-                                ),
-                                listInnerDecoration: BoxDecoration(
-                                  color: Theme.of(context).canvasColor,
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(8.0)),
-                                ),
-                                lastItemTargetHeight: 8,
-                                addLastItemTargetHeightToTop: true,
-                                lastListTargetSize: 40,
-                                listDragHandle: const DragHandle(
-                                  verticalAlignment:
-                                      DragHandleVerticalAlignment.top,
-                                  child: Padding(
-                                    padding: EdgeInsets.only(right: 10),
-                                    child: Icon(
-                                      Icons.menu,
-                                      color: Colors.black26,
-                                    ),
-                                  ),
-                                ),
-                                itemDragHandle: const DragHandle(
-                                  child: Padding(
-                                    padding: EdgeInsets.only(right: 10),
-                                    child: Icon(
-                                      Icons.menu,
-                                      color: Colors.blueGrey,
-                                    ),
-                                  ),
-                                ),
-                              ))
+                              Expanded(child: _contentsAntraege)
                             ]);
                       }
                     });
@@ -277,6 +235,26 @@ class _SitzungsViewState extends State<SitzungView> {
     setState(() {
       var movedList = _contents.removeAt(oldListIndex);
       _contents.insert(newListIndex, movedList);
+    });
+  }
+
+  _onItemAdd(DragAndDropItem newItem, int listIndex, int itemIndex) {
+    setState(() {
+      if (itemIndex == -1) {
+        _contents[listIndex].children.add(newItem);
+      } else {
+        _contents[listIndex].children.insert(itemIndex, newItem);
+      }
+    });
+  }
+
+  _onListAdd(DragAndDropListInterface newList, int listIndex) {
+    setState(() {
+      if (listIndex == -1) {
+        _contents.add(newList as DragAndDropList);
+      } else {
+        _contents.insert(listIndex, newList as DragAndDropList);
+      }
     });
   }
 }
