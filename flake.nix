@@ -25,7 +25,6 @@
             mkShell {
               nativeBuildInputs = [
                 pkgs.flutter
-                pkgs.google-chrome
                 pkgs.chromium
               ];
               shellHook = ''
