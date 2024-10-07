@@ -24,4 +24,19 @@ class Antrag {
       begruendung: json['begründung'] as String,
     );
   }
+
+  static Future<List<Antrag>> fetchAntraege() async {
+    final response =
+        await http.get(Uri.parse('https://fscs.hhu.de/api/anträge/'));
+
+    if (response.statusCode == 200) {
+      var list = json.decode(utf8.decode(response.bodyBytes)) as List;
+
+      List<Antrag> antraege = list.map((i) => Antrag.fromJson(i)).toList();
+
+      return antraege;
+    } else {
+      throw Exception('Failed to load Sitzung');
+    }
+  }
 }
