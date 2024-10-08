@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:drag_and_drop_lists/drag_and_drop_list_interface.dart';
 import 'package:drag_and_drop_lists/drag_and_drop_lists.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +7,10 @@ import 'package:sitzungsverwaltung_gui/Antrag.dart';
 import 'package:sitzungsverwaltung_gui/Sitzung.dart';
 import 'package:sitzungsverwaltung_gui/Top.dart';
 import 'package:uuid/uuid_value.dart';
+import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:cookie_jar/cookie_jar.dart';
 
 class SitzungView extends StatefulWidget {
   final UuidValue id;
@@ -15,8 +21,8 @@ class SitzungView extends StatefulWidget {
 }
 
 class _SitzungsViewState extends State<SitzungView> {
-  final UuidValue id;
-  _SitzungsViewState(this.id);
+  final UuidValue sitzungsid;
+  _SitzungsViewState(this.sitzungsid);
   late List<DragAndDropList> _contents;
   late Widget _contentsAntraege;
   late Future<List<TopWithAntraege>> futureTops;
@@ -26,7 +32,7 @@ class _SitzungsViewState extends State<SitzungView> {
   void initState() {
     super.initState();
 
-    futureTops = Sitzung.fetchTopWithAntraege(id);
+    futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
     futureTops.then((tops) => {
           _contents = List.generate(tops.length, (index) {
             return DragAndDropList(
@@ -222,10 +228,11 @@ class _SitzungsViewState extends State<SitzungView> {
 
   _onItemReorder(
       int oldItemIndex, int oldListIndex, int newItemIndex, int newListIndex) {
-    setState(() {
-      var movedItem = _contents[oldListIndex].children.removeAt(oldItemIndex);
-      _contents[newListIndex].children.insert(newItemIndex, movedItem);
-    });
+    updateApi(oldItemIndex, oldListIndex, newItemIndex, newListIndex);
+    // setState(() {
+    //   var movedItem = _contents[oldListIndex].children.removeAt(oldItemIndex);
+    //   _contents[newListIndex].children.insert(newItemIndex, movedItem);
+    // });
   }
 
   _onListReorder(int oldListIndex, int newListIndex) {
@@ -253,5 +260,24 @@ class _SitzungsViewState extends State<SitzungView> {
         _contents.insert(listIndex, newList as DragAndDropList);
       }
     });
+  }
+
+  Future<void> updateApi(int oldItemIndex, int oldListIndex, int newItemIndex,
+      int newListIndex) async {
+    var tops = await futureTops;
+    final res = await http.delete(
+        Uri.parse(
+            "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/${tops[oldListIndex].id}/assoc/"),
+        body: {
+          jsonEncode(
+              {"antrag_id": "${tops[oldListIndex].antraege[oldItemIndex].id}"})
+        });
+    print(res.statusCode);
+    print(res.body);
+    http.patch(
+        Uri.parse(
+            "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/${tops[newListIndex].id}/assoc/"),
+        body: jsonEncode(
+            {"antrag_id": "${tops[newListIndex].antraege[newItemIndex].id}"}));
   }
 }
