@@ -1,16 +1,15 @@
 import 'dart:convert';
+import 'dart:html' as html;
+import 'package:openidconnect/openidconnect.dart';
 
 import 'package:drag_and_drop_lists/drag_and_drop_list_interface.dart';
 import 'package:drag_and_drop_lists/drag_and_drop_lists.dart';
 import 'package:flutter/material.dart';
 import 'package:sitzungsverwaltung_gui/Antrag.dart';
+import 'package:sitzungsverwaltung_gui/OAuth.dart';
 import 'package:sitzungsverwaltung_gui/Sitzung.dart';
 import 'package:sitzungsverwaltung_gui/Top.dart';
 import 'package:uuid/uuid_value.dart';
-import 'package:http/http.dart' as http;
-import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:cookie_jar/cookie_jar.dart';
 
 class SitzungView extends StatefulWidget {
   final UuidValue id;
@@ -146,7 +145,7 @@ class _SitzungsViewState extends State<SitzungView> {
             future: futureTops,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
               } else {
@@ -155,7 +154,7 @@ class _SitzungsViewState extends State<SitzungView> {
                     builder: (context, secondSnapshot) {
                       if (secondSnapshot.connectionState ==
                           ConnectionState.waiting) {
-                        return Center(child: CircularProgressIndicator());
+                        return const Center(child: CircularProgressIndicator());
                       } else if (secondSnapshot.hasError) {
                         return Center(
                             child: Text('Error: ${secondSnapshot.error}'));
@@ -228,11 +227,12 @@ class _SitzungsViewState extends State<SitzungView> {
 
   _onItemReorder(
       int oldItemIndex, int oldListIndex, int newItemIndex, int newListIndex) {
-    updateApi(oldItemIndex, oldListIndex, newItemIndex, newListIndex);
-    // setState(() {
-    //   var movedItem = _contents[oldListIndex].children.removeAt(oldItemIndex);
-    //   _contents[newListIndex].children.insert(newItemIndex, movedItem);
-    // });
+    setState(() {
+      var movedItem = _contents[oldListIndex].children.removeAt(oldItemIndex);
+      _contents[newListIndex].children.insert(newItemIndex, movedItem);
+
+      updateAntragApi(oldItemIndex, oldListIndex, newItemIndex, newListIndex);
+    });
   }
 
   _onListReorder(int oldListIndex, int newListIndex) {
@@ -262,22 +262,28 @@ class _SitzungsViewState extends State<SitzungView> {
     });
   }
 
-  Future<void> updateApi(int oldItemIndex, int oldListIndex, int newItemIndex,
-      int newListIndex) async {
-    var tops = await futureTops;
-    final res = await http.delete(
-        Uri.parse(
-            "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/${tops[oldListIndex].id}/assoc/"),
-        body: {
-          jsonEncode(
-              {"antrag_id": "${tops[oldListIndex].antraege[oldItemIndex].id}"})
-        });
-    print(res.statusCode);
-    print(res.body);
-    http.patch(
-        Uri.parse(
-            "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/${tops[newListIndex].id}/assoc/"),
-        body: jsonEncode(
-            {"antrag_id": "${tops[newListIndex].antraege[newItemIndex].id}"}));
+  Future<void> updateAntragApi(int oldItemIndex, int oldListIndex,
+      int newItemIndex, int newListIndex) async {
+    var tops = await Sitzung.fetchTopWithAntraege(sitzungsid);
+
+    var antrag = tops[oldListIndex].antraege[oldItemIndex].id;
+    var topOld = tops[oldListIndex].id;
+    var topNew = tops[newListIndex].id;
+
+    final token = await OAuth.getToken(context);
+
+    final requestDelete = html.HttpRequest();
+    requestDelete.open('DELETE',
+        "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/$topOld/assoc/");
+    requestDelete.withCredentials = true;
+    requestDelete.setRequestHeader("Authorization", "Bearer $token");
+    requestDelete.send(jsonEncode({"antrag_id": "$antrag"}));
+
+    final requestAdd = html.HttpRequest();
+    requestAdd.open('PATCH',
+        "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/$topNew/assoc/");
+    requestAdd.withCredentials = true;
+    requestAdd.setRequestHeader("Authorization", "Bearer $token");
+    requestAdd.send(jsonEncode({"antrag_id": "$antrag"}));
   }
 }
