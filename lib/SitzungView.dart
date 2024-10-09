@@ -33,6 +33,7 @@ class _SitzungsViewState extends State<SitzungView> {
   final titleController = TextEditingController();
   final begruendungController = TextEditingController();
   final antragstextController = TextEditingController();
+  var dragedIndex = -1;
 
   @override
   void initState() {
@@ -98,6 +99,10 @@ class _SitzungsViewState extends State<SitzungView> {
                     children: [
                       Expanded(
                         child: Draggable<DragAndDropItem>(
+                          onDragStarted: () {
+                            //get index of dragged
+                            dragedIndex = index;
+                          },
                           data: DragAndDropItem(
                               child: Container(
                             height: 50,
@@ -264,6 +269,7 @@ class _SitzungsViewState extends State<SitzungView> {
       } else {
         _contents[listIndex].children.insert(itemIndex, newItem);
       }
+      addAntragToTop(listIndex);
     });
   }
 
@@ -621,5 +627,18 @@ class _SitzungsViewState extends State<SitzungView> {
                 })
           });
     });
+  }
+
+  Future<void> addAntragToTop(int listIndex) async {
+    var tops = await Sitzung.fetchTopWithAntraege(sitzungsid);
+    var antrag = await Antrag.fetchAntraege();
+    var antragId = antrag[dragedIndex].id;
+    var top = tops[listIndex].id;
+    final token = await OAuth.getToken(context);
+    await http.patch(
+        Uri.parse(
+            "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/$top/assoc/"),
+        headers: {"Authorization": "Bearer $token"},
+        body: jsonEncode({"antrag_id": "$antragId"}));
   }
 }
