@@ -287,19 +287,17 @@ class _SitzungsViewState extends State<SitzungView> {
 
     final token = await OAuth.getToken(context);
 
-    final requestDelete = html.HttpRequest();
-    requestDelete.open('DELETE',
-        "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/$topOld/assoc/");
-    requestDelete.withCredentials = true;
-    requestDelete.setRequestHeader("Authorization", "Bearer $token");
-    requestDelete.send(jsonEncode({"antrag_id": "$antrag"}));
+    http.delete(
+        Uri.parse(
+            "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/$topOld/assoc/$antrag"),
+        headers: {"Authorization ": "Bearer $token"},
+        body: jsonEncode({"antrag_id": "$antrag"}));
 
-    final requestAdd = html.HttpRequest();
-    requestAdd.open('PATCH',
-        "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/$topNew/assoc/");
-    requestAdd.withCredentials = true;
-    requestAdd.setRequestHeader("Authorization", "Bearer $token");
-    requestAdd.send(jsonEncode({"antrag_id": "$antrag"}));
+    http.patch(
+        Uri.parse(
+            "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/$topNew/assoc/"),
+        headers: {"Authorization": "Bearer $token"},
+        body: jsonEncode({"antrag_id": "$antrag"}));
   }
 
   Future<void> updateTopApi(int oldListIndex, int newListIndex) async {
@@ -311,48 +309,48 @@ class _SitzungsViewState extends State<SitzungView> {
     for (var top in tops) {
       final token = await OAuth.getToken(context);
 
-      final request = html.HttpRequest();
-      request.open('PATCH',
-          "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/${top.id}/");
-      request.withCredentials = true;
-      request.setRequestHeader("Authorization", "Bearer $token");
-      request.send(jsonEncode({"weight": top.weight}));
+      http.patch(
+          Uri.parse(
+              "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/${top.id}/"),
+          headers: {
+            "Authorization": "Bearer $token",
+            "Content-Type": "application/json; charset=UTF-8"
+          },
+          body: jsonEncode({"weight": top.weight}));
     }
   }
 
   Future<void> addTop(String dropdownValue, String text) async {
     final token = await OAuth.getToken(context);
-    final request = html.HttpRequest();
-    request.open('POST', "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/");
-    request.withCredentials = true;
-    request.setRequestHeader("Authorization", "Bearer $token");
-    request.setRequestHeader("Content-Type", "application/json");
-    request.send(jsonEncode({
-      "kind": "$dropdownValue",
-      "name": "$text",
-    }));
-    await request.onLoadEnd.first;
+    http.post(Uri.parse("https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/"),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json; charset=UTF-8"
+        },
+        body: jsonEncode({
+          "kind": "$dropdownValue",
+          "name": "$text",
+        }));
+
     setState(() {
       futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
       futureTops.then((tops) => {
             _contents = List.generate(tops.length, (index) {
               return DragAndDropList(
-                header: Column(
-                  children: <Widget>[
-                    Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8, bottom: 4),
-                          child: Text(
-                            'Top ${index + 2}: ${tops[index].name}',
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
+                header: Column(children: <Widget>[
+                  Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8, bottom: 4),
+                        child: Text(
+                          'Top ${index + 2}: ${tops[index].name}',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ]),
                 children: <DragAndDropItem>[
                   for (var antrag in tops[index].antraege)
                     DragAndDropItem(

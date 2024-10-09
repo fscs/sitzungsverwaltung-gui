@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'dart:html' as html;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const Sitzungsverwaltung());
@@ -296,16 +297,17 @@ class _MainPageState extends State<MainPage> {
       String dropdownValue, DateTime date, String text) async {
     final token = await OAuth.getToken(context);
 
-    final request = html.HttpRequest();
-    request.open('POST', "https://fscs.hhu.de/api/sitzungen/");
-    request.withCredentials = true;
-    request.setRequestHeader("Authorization", "Bearer $token");
-    request.send(jsonEncode({
-      "kind": dropdownValue,
-      "location": text,
-      "datetime": date.toUtc().toIso8601String()
-    }));
-    await request.onLoadEnd.first;
+    http.post(Uri.parse("https://fscs.hhu.de/api/sitzungen/"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          "kind": dropdownValue,
+          "location": text,
+          "datetime": date.toUtc().toIso8601String()
+        }));
+
     setState(() {
       futureSitzung = Sitzung.fetchSitzungen();
       futureSitzung.then((sitzungen) => {
