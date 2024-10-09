@@ -41,6 +41,7 @@ dependencies:
   dio: ^5.7.0
   dio_cookie_manager: ^3.1.1
   openidconnect: ^1.0.29
+  intl: ^0.19.0
 
 dev_dependencies:
   flutter_test:

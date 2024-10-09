@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:html' as html;
-import 'package:openidconnect/openidconnect.dart';
 
 import 'package:drag_and_drop_lists/drag_and_drop_list_interface.dart';
 import 'package:drag_and_drop_lists/drag_and_drop_lists.dart';
@@ -239,6 +238,7 @@ class _SitzungsViewState extends State<SitzungView> {
     setState(() {
       var movedList = _contents.removeAt(oldListIndex);
       _contents.insert(newListIndex, movedList);
+      updateTopApi(oldListIndex, newListIndex);
     });
   }
 
@@ -285,5 +285,23 @@ class _SitzungsViewState extends State<SitzungView> {
     requestAdd.withCredentials = true;
     requestAdd.setRequestHeader("Authorization", "Bearer $token");
     requestAdd.send(jsonEncode({"antrag_id": "$antrag"}));
+  }
+
+  Future<void> updateTopApi(int oldListIndex, int newListIndex) async {
+    var tops = await Sitzung.fetchTopWithAntraege(sitzungsid);
+
+    tops[oldListIndex].weight = newListIndex + 1;
+    tops[newListIndex].weight = oldListIndex + 1;
+
+    for (var top in tops) {
+      final token = await OAuth.getToken(context);
+
+      final request = html.HttpRequest();
+      request.open('PATCH',
+          "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/${top.id}/");
+      request.withCredentials = true;
+      request.setRequestHeader("Authorization", "Bearer $token");
+      request.send(jsonEncode({"weight": top.weight}));
+    }
   }
 }

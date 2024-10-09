@@ -28,10 +28,10 @@ class TopWithAntraege {
   final UuidValue id;
   final TopKind kind;
   final String name;
-  final int weight;
+  int weight;
   final List<Antrag> antraege;
 
-  const TopWithAntraege({
+  TopWithAntraege({
     required this.kind,
     required this.id,
     required this.name,
