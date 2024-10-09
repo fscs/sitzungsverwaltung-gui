@@ -9,7 +9,7 @@ class OAuth {
       title: "SSO Login",
       request: await InteractiveAuthorizationRequest.create(
           clientId: "cZgfgWqx4h1Mn0jhLgUem6vS6m3zFvPwtIcOSyDg",
-          redirectUrl: "http://localhost:8000/callback.html",
+          redirectUrl: "${Uri.base.origin}/callback.html",
           scopes: ["openid", "profile"],
           configuration: OpenIdConfiguration(
             issuer: "https://auth.inphima.de/application/o/fscs-website/",
