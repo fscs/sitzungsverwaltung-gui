@@ -5,4 +5,6 @@ pkgs.flutter.buildFlutterApplication {
   src = ./.;
   pubspecLock = lib.importJSON ./pubspec.lock.json;
   meta = { };
+  targetFlutterPlatform = "web";
+  flutterBuildFlags = [ "--release" ];
 }

@@ -6,6 +6,8 @@ import 'package:sitzungsverwaltung_gui/Sitzung.dart';
 import 'package:sitzungsverwaltung_gui/SitzungView.dart';
 import 'package:intl/intl.dart';
 import 'dart:html' as html;
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
 
 void main() {
   runApp(const Sitzungsverwaltung());
@@ -17,6 +19,9 @@ class Sitzungsverwaltung extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Sitzungsverwaltung',
+      builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
@@ -45,6 +50,8 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
+
+    tz.initializeTimeZones();
 
     futureSitzung = Sitzung.fetchSitzungen();
     futureSitzung.then((sitzungen) => {
@@ -76,7 +83,7 @@ class _MainPageState extends State<MainPage> {
                           child: Padding(
                             padding: const EdgeInsets.only(left: 8, bottom: 4),
                             child: Text(
-                              '${DateFormat("dd.MM.yyy").format(sitzungen[index].datetime)}',
+                              '${DateFormat("dd.MM.yyyy HH:mm").format((tz.TZDateTime.from(sitzungen[index].datetime, tz.getLocation("Europe/Berlin"))))}',
                               style: const TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 16),
                             ),
@@ -121,6 +128,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     var backgroundColor = const Color.fromARGB(255, 243, 242, 248);
 
+    date = DateTime.now();
     date = DateTime.now();
     dropdownValue = "normal";
     locationController.text = "";
@@ -189,6 +197,32 @@ class _MainPageState extends State<MainPage> {
                                             {
                                               setState(() {
                                                 date = selectedDate;
+                                              })
+                                            }
+                                        }),
+                                child: Text(
+                                    DateFormat('dd.MM.yyyy').format(date))),
+                            SizedBox(width: 10),
+                            const Text("Time"),
+                            const SizedBox(width: 10),
+                            ElevatedButton(
+                                onPressed: () async => await showTimePicker(
+                                        initialEntryMode:
+                                            TimePickerEntryMode.input,
+                                        context: context,
+                                        initialTime:
+                                            TimeOfDay.fromDateTime(date))
+                                    // ignore: unnecessary_set_literal
+                                    .then((selectedDate) => {
+                                          if (selectedDate != null)
+                                            {
+                                              setState(() {
+                                                date = DateTime(
+                                                    date.year,
+                                                    date.month,
+                                                    date.day,
+                                                    selectedDate.hour,
+                                                    selectedDate.minute);
                                               })
                                             }
                                         }),
@@ -304,7 +338,7 @@ class _MainPageState extends State<MainPage> {
                               padding:
                                   const EdgeInsets.only(left: 8, bottom: 4),
                               child: Text(
-                                'Sitzung ${sitzungen[index].datetime}',
+                                '${DateFormat("dd.MM.yyyy HH:mm").format((tz.TZDateTime.from(sitzungen[index].datetime, tz.getLocation("Europe/Berlin"))))}',
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 16),
                               ),

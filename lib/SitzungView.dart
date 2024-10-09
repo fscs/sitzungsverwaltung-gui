@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:html' as html;
+import 'package:http/http.dart' as http;
 
 import 'package:drag_and_drop_lists/drag_and_drop_list_interface.dart';
 import 'package:drag_and_drop_lists/drag_and_drop_lists.dart';
@@ -28,6 +29,10 @@ class _SitzungsViewState extends State<SitzungView> {
 
   final nameController = TextEditingController();
   String dropdownValue = "normal";
+
+  final titleController = TextEditingController();
+  final begruendungController = TextEditingController();
+  final antragstextController = TextEditingController();
 
   @override
   void initState() {
@@ -142,91 +147,11 @@ class _SitzungsViewState extends State<SitzungView> {
         backgroundColor: backgroundColor,
         appBar: AppBar(title: const Text('Sitzung View'), actions: [
           ElevatedButton(
-            onPressed: () => showDialog<String>(
-              context: context,
-              builder: (BuildContext context) => StatefulBuilder(
-                builder: (BuildContext context, StateSetter setState) => Dialog(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Row(mainAxisSize: MainAxisSize.min, children: [
-                          const Text("Name"),
-                          const SizedBox(width: 10),
-                          SizedBox(
-                            width: 300,
-                            child: TextField(
-                              controller: nameController,
-                              decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'Location',
-                              ),
-                            ),
-                          ),
-                        ]),
-                        const SizedBox(height: 20),
-                        Row(mainAxisSize: MainAxisSize.min, children: [
-                          const Text('Kind'),
-                          const SizedBox(width: 10),
-                          SizedBox(
-                            width: 300,
-                            child: DropdownButton<String>(
-                              value: dropdownValue,
-                              items: <String>[
-                                'normal',
-                                'regularia',
-                                'bericht',
-                                'verschiedenes'
-                              ].map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  dropdownValue = value!;
-                                });
-                              },
-                            ),
-                          ),
-                        ]),
-                        const SizedBox(height: 20),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Text('Close'),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                                addTop(dropdownValue, nameController.text);
-                              },
-                              child: const Text('Save'),
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            onPressed: () => showCreateTop(),
             child: const Text('Create Top'),
           ),
           ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
+            onPressed: () => showCreateAntrag(),
             child: const Text('Create Antrag'),
           ),
         ]),
@@ -455,6 +380,246 @@ class _SitzungsViewState extends State<SitzungView> {
                 ],
               );
             })
+          });
+    });
+  }
+
+  showCreateTop() {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) => Dialog(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                const SizedBox(
+                  height: 10,
+                ),
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  const Text("Name"),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 300,
+                    child: TextField(
+                      controller: nameController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Name',
+                      ),
+                    ),
+                  ),
+                ]),
+                const SizedBox(height: 20),
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  const Text('Kind'),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 300,
+                    child: DropdownButton<String>(
+                      value: dropdownValue,
+                      items: <String>[
+                        'normal',
+                        'regularia',
+                        'bericht',
+                        'verschiedenes'
+                      ].map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          dropdownValue = value!;
+                        });
+                      },
+                    ),
+                  ),
+                ]),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('Close'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        addTop(dropdownValue, nameController.text);
+                      },
+                      child: const Text('Save'),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  showCreateAntrag() {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) => Dialog(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                const SizedBox(
+                  height: 10,
+                ),
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  const Text("Titel"),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 300,
+                    child: TextField(
+                      controller: titleController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Titel',
+                      ),
+                    ),
+                  ),
+                ]),
+                const SizedBox(height: 20),
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  const Text("Begründung"),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 300,
+                    child: TextField(
+                      controller: begruendungController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Begeündung',
+                      ),
+                    ),
+                  ),
+                ]),
+                const SizedBox(height: 20),
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  const Text("Antragstext"),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 300,
+                    child: TextField(
+                      controller: antragstextController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Antragstext',
+                      ),
+                    ),
+                  ),
+                ]),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('Close'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        addAntrag(titleController, begruendungController,
+                            antragstextController);
+                      },
+                      child: const Text('Save'),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> addAntrag(
+      TextEditingController titleController,
+      TextEditingController begruendungController,
+      TextEditingController antragstextController) async {
+    final token = await OAuth.getToken(context);
+    await http.post(Uri.parse("https://fscs.hhu.de/api/anträge/"),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json; charset=UTF-8"
+        },
+        body: jsonEncode({
+          "titel": "${titleController.text}",
+          "begründung": "${begruendungController.text}",
+          "antragstext": "${antragstextController.text}",
+          "antragssteller": []
+        }));
+    setState(() {
+      futureAntraege = Antrag.fetchAntraege();
+      futureAntraege.then((antraege) => {
+            _contentsAntraege = ListView.builder(
+                itemCount: antraege.length,
+                itemBuilder: (context, index) {
+                  return Container(
+                    height: 50,
+                    color: Colors.white,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Draggable<DragAndDropItem>(
+                            data: DragAndDropItem(
+                                child: Container(
+                              height: 50,
+                              color: Colors.white,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 8, bottom: 4),
+                                      child: Text(
+                                        antraege[index].title,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )),
+                            feedback: Text(antraege[index].title,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 16)),
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 8, bottom: 4),
+                              child: Text(
+                                antraege[index].title,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                })
           });
     });
   }
