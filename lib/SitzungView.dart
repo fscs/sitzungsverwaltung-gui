@@ -565,7 +565,7 @@ class _SitzungsViewState extends State<SitzungView> {
           "titel": "${titleController.text}",
           "begründung": "${begruendungController.text}",
           "antragstext": "${antragstextController.text}",
-          "antragssteller": []
+          "antragssteller": [""]
         }));
     setState(() {
       futureAntraege = Antrag.fetchAntraege();
