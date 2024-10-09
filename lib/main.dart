@@ -297,7 +297,7 @@ class _MainPageState extends State<MainPage> {
       String dropdownValue, DateTime date, String text) async {
     final token = await OAuth.getToken(context);
 
-    http.post(Uri.parse("https://fscs.hhu.de/api/sitzungen/"),
+    await http.post(Uri.parse("https://fscs.hhu.de/api/sitzungen/"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',

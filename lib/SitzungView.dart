@@ -287,13 +287,13 @@ class _SitzungsViewState extends State<SitzungView> {
 
     final token = await OAuth.getToken(context);
 
-    http.delete(
+    await http.delete(
         Uri.parse(
             "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/$topOld/assoc/$antrag"),
         headers: {"Authorization ": "Bearer $token"},
         body: jsonEncode({"antrag_id": "$antrag"}));
 
-    http.patch(
+    await http.patch(
         Uri.parse(
             "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/$topNew/assoc/"),
         headers: {"Authorization": "Bearer $token"},
@@ -309,7 +309,7 @@ class _SitzungsViewState extends State<SitzungView> {
     for (var top in tops) {
       final token = await OAuth.getToken(context);
 
-      http.patch(
+      await http.patch(
           Uri.parse(
               "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/${top.id}/"),
           headers: {
@@ -322,7 +322,8 @@ class _SitzungsViewState extends State<SitzungView> {
 
   Future<void> addTop(String dropdownValue, String text) async {
     final token = await OAuth.getToken(context);
-    http.post(Uri.parse("https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/"),
+    await http.post(
+        Uri.parse("https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/"),
         headers: {
           "Authorization": "Bearer $token",
           "Content-Type": "application/json; charset=UTF-8"
