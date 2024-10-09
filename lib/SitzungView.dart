@@ -26,6 +26,9 @@ class _SitzungsViewState extends State<SitzungView> {
   late Future<List<TopWithAntraege>> futureTops;
   late Future<List<Antrag>> futureAntraege;
 
+  final nameController = TextEditingController();
+  String dropdownValue = "normal";
+
   @override
   void initState() {
     super.initState();
@@ -137,11 +140,98 @@ class _SitzungsViewState extends State<SitzungView> {
 
     return Scaffold(
         backgroundColor: backgroundColor,
-        appBar: AppBar(
-          title: const Text('Sitzung View'),
-        ),
-        body: FutureBuilder<List<TopWithAntraege>>(
-            future: futureTops,
+        appBar: AppBar(title: const Text('Sitzung View'), actions: [
+          ElevatedButton(
+            onPressed: () => showDialog<String>(
+              context: context,
+              builder: (BuildContext context) => StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) => Dialog(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Row(mainAxisSize: MainAxisSize.min, children: [
+                          const Text("Name"),
+                          const SizedBox(width: 10),
+                          SizedBox(
+                            width: 300,
+                            child: TextField(
+                              controller: nameController,
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                                labelText: 'Location',
+                              ),
+                            ),
+                          ),
+                        ]),
+                        const SizedBox(height: 20),
+                        Row(mainAxisSize: MainAxisSize.min, children: [
+                          const Text('Kind'),
+                          const SizedBox(width: 10),
+                          SizedBox(
+                            width: 300,
+                            child: DropdownButton<String>(
+                              value: dropdownValue,
+                              items: <String>[
+                                'normal',
+                                'regularia',
+                                'bericht',
+                                'verschiedenes'
+                              ].map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  dropdownValue = value!;
+                                });
+                              },
+                            ),
+                          ),
+                        ]),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text('Close'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                addTop(dropdownValue, nameController.text);
+                              },
+                              child: const Text('Save'),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            child: const Text('Create Top'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Create Antrag'),
+          ),
+        ]),
+        body: StreamBuilder<List<TopWithAntraege>>(
+            stream: futureTops.asStream(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -303,5 +393,69 @@ class _SitzungsViewState extends State<SitzungView> {
       request.setRequestHeader("Authorization", "Bearer $token");
       request.send(jsonEncode({"weight": top.weight}));
     }
+  }
+
+  Future<void> addTop(String dropdownValue, String text) async {
+    final token = await OAuth.getToken(context);
+    final request = html.HttpRequest();
+    request.open('POST', "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/");
+    request.withCredentials = true;
+    request.setRequestHeader("Authorization", "Bearer $token");
+    request.setRequestHeader("Content-Type", "application/json");
+    request.send(jsonEncode({
+      "kind": "$dropdownValue",
+      "name": "$text",
+    }));
+    await request.onLoadEnd.first;
+    setState(() {
+      futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
+      futureTops.then((tops) => {
+            _contents = List.generate(tops.length, (index) {
+              return DragAndDropList(
+                header: Column(
+                  children: <Widget>[
+                    Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8, bottom: 4),
+                          child: Text(
+                            'Top ${index + 2}: ${tops[index].name}',
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                children: <DragAndDropItem>[
+                  for (var antrag in tops[index].antraege)
+                    DragAndDropItem(
+                      child: Container(
+                        height: 50,
+                        color: Colors.white,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 8, bottom: 4),
+                                child: Text(
+                                  antrag.title,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            })
+          });
+    });
   }
 }
