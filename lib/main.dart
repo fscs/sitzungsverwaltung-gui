@@ -23,10 +23,6 @@ class Sitzungsverwaltung extends StatelessWidget {
       builder: (context, child) => MediaQuery(
           data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
           child: child!),
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
       home: const MainPage(title: 'Main'),
       debugShowCheckedModeBanner: false,
     );
@@ -47,6 +43,15 @@ class _MainPageState extends State<MainPage> {
   final locationController = TextEditingController();
   var date = DateTime.now();
   String dropdownValue = "normal";
+  final ThemeData darkTheme = ThemeData(
+      colorScheme: ColorScheme.dark(
+          primary: Color.fromRGBO(119, 119, 119, 1),
+          secondary: Color.fromRGBO(85, 85, 85, 1),
+          surface: Color.fromRGBO(50, 50, 50, 1),
+          surfaceDim: Color.fromRGBO(40, 40, 40, 1)),
+      textTheme: TextTheme(bodyMedium: TextStyle(color: Colors.white)),
+      buttonTheme:
+          ButtonThemeData(buttonColor: Color.fromRGBO(11, 80, 181, 1)));
 
   @override
   void initState() {
@@ -57,12 +62,9 @@ class _MainPageState extends State<MainPage> {
     futureSitzung = Sitzung.fetchSitzungen();
     futureSitzung.then((sitzungen) => {
           _contents = List.generate(sitzungen.length, (index) {
-            Color color;
-            if (index % 2 == 0) {
-              color = Colors.white;
-            } else {
-              color = Colors.grey;
-            }
+            Color itemColor = index % 2 == 0
+                ? darkTheme.colorScheme.primary.withOpacity(0.5)
+                : darkTheme.colorScheme.secondary.withOpacity(0.5);
 
             return Column(
               children: <Widget>[
@@ -76,17 +78,54 @@ class _MainPageState extends State<MainPage> {
                   },
                   child: Container(
                     height: 50,
-                    color: color,
+                    color: itemColor,
                     child: Row(
                       mainAxisSize: MainAxisSize.max,
                       children: [
-                        Expanded(
+                        Padding(
+                            padding: EdgeInsets.only(left: 8, right: 4),
+                            child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        darkTheme.colorScheme.surfaceDim,
+                                    foregroundColor:
+                                        darkTheme.textTheme.bodyMedium!.color),
+                                onPressed: () {
+                                  html.window.open(
+                                      "https://fscs.hhu.de/api/sitzungen/${sitzungen[index].id}/pdf",
+                                      "pdf");
+                                },
+                                child: const Text("EDIT"))),
+                        SizedBox(
+                            width: 100,
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 8, bottom: 4),
+                              child: Text(
+                                '${sitzungen[index].kind.name}',
+                                style: darkTheme.textTheme.bodyMedium!
+                                    .copyWith(fontWeight: FontWeight.bold),
+                              ),
+                            )),
+                        SizedBox(
+                          width: 80,
                           child: Padding(
                             padding: const EdgeInsets.only(left: 8, bottom: 4),
                             child: Text(
-                              '${DateFormat("dd.MM.yyyy HH:mm").format((tz.TZDateTime.from(sitzungen[index].datetime, tz.getLocation("Europe/Berlin"))))}',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
+                              style: darkTheme.textTheme.bodyMedium!
+                                  .copyWith(fontWeight: FontWeight.bold),
+                              '${DateFormat("HH:mm").format((tz.TZDateTime.from(sitzungen[index].datetime, tz.getLocation("Europe/Berlin"))))}',
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 120,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8, bottom: 4),
+                            child: Text(
+                              style: darkTheme.textTheme.bodyMedium!
+                                  .copyWith(fontWeight: FontWeight.bold),
+                              '${DateFormat("dd.MM.yyyy").format((tz.TZDateTime.from(sitzungen[index].datetime, tz.getLocation("Europe/Berlin"))))}',
                             ),
                           ),
                         ),
@@ -94,18 +133,10 @@ class _MainPageState extends State<MainPage> {
                           child: Padding(
                             padding: const EdgeInsets.only(left: 8, bottom: 4),
                             child: Text(
-                              '${sitzungen[index].kind.name}',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
+                              style: darkTheme.textTheme.bodyMedium!
+                                  .copyWith(fontWeight: FontWeight.bold),
+                              '${sitzungen[index].location}',
                             ),
-                          ),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.only(right: 8, bottom: 4),
-                          child: Text(
-                            '>',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                         ),
                       ],
@@ -127,7 +158,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    var backgroundColor = const Color.fromARGB(255, 243, 242, 248);
+    final weite = MediaQuery.of(context).size.width;
 
     date = DateTime.now();
     date = DateTime.now();
@@ -135,162 +166,181 @@ class _MainPageState extends State<MainPage> {
     locationController.text = "";
 
     return Scaffold(
-        backgroundColor: backgroundColor,
-        appBar: AppBar(title: const Text('Sitzungen FS Informatik'), actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            tooltip: 'Add Sitzung',
-            onPressed: () => showDialog<String>(
-              context: context,
-              builder: (BuildContext context) => StatefulBuilder(
-                builder: (BuildContext context, StateSetter setState) => Dialog(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Row(mainAxisSize: MainAxisSize.min, children: [
-                          const Text('Kind'),
-                          const SizedBox(width: 10),
-                          SizedBox(
-                            width: 300,
-                            child: DropdownButton<String>(
-                              value: dropdownValue,
-                              items: <String>[
-                                'normal',
-                                'vv',
-                                'konsti',
-                                'ersatz',
-                                'dringlichkeit',
-                              ].map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  dropdownValue = value!;
-                                });
-                              },
-                            ),
-                          ),
-                        ]),
-                        const SizedBox(height: 20),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Text("Datum"),
-                            const SizedBox(width: 10),
-                            ElevatedButton(
-                                onPressed: () async => await showDatePicker(
-                                        context: context,
-                                        firstDate: DateTime(2000),
-                                        lastDate: DateTime(3000),
-                                        initialDate: date)
-                                    // ignore: unnecessary_set_literal
-                                    .then((selectedDate) => {
-                                          if (selectedDate != null)
-                                            {
-                                              setState(() {
-                                                date = selectedDate;
-                                              })
-                                            }
-                                        }),
-                                child: Text(
-                                    DateFormat('dd.MM.yyyy').format(date))),
-                            SizedBox(width: 10),
-                            const Text("Time"),
-                            const SizedBox(width: 10),
-                            ElevatedButton(
-                                onPressed: () async => await showTimePicker(
-                                        initialEntryMode:
-                                            TimePickerEntryMode.input,
-                                        context: context,
-                                        initialTime:
-                                            TimeOfDay.fromDateTime(date))
-                                    // ignore: unnecessary_set_literal
-                                    .then((selectedDate) => {
-                                          if (selectedDate != null)
-                                            {
-                                              setState(() {
-                                                date = DateTime(
-                                                    date.year,
-                                                    date.month,
-                                                    date.day,
-                                                    selectedDate.hour,
-                                                    selectedDate.minute);
-                                              })
-                                            }
-                                        }),
-                                child: Text(
-                                    DateFormat('dd.MM.yyyy').format(date))),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        Row(mainAxisSize: MainAxisSize.min, children: [
-                          const Text("Location"),
-                          const SizedBox(width: 10),
-                          SizedBox(
-                            width: 300,
-                            child: TextField(
-                              controller: locationController,
-                              decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'Location',
+        appBar: AppBar(
+          backgroundColor: darkTheme.colorScheme.surfaceDim,
+          foregroundColor: darkTheme.textTheme.bodyMedium!.color,
+          title: Row(children: [
+            const Text('Sitzungen FS Informatik'),
+            Padding(
+                padding: EdgeInsets.only(left: 8),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      foregroundColor: darkTheme.textTheme.bodyMedium!.color,
+                      backgroundColor: Color.fromRGBO(11, 80, 181, 1)),
+                  child: const Text('+', style: TextStyle(fontSize: 20)),
+                  onPressed: () => showDialog<String>(
+                    context: context,
+                    builder: (BuildContext context) => StatefulBuilder(
+                      builder: (BuildContext context, StateSetter setState) =>
+                          Dialog(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              const SizedBox(
+                                height: 10,
                               ),
-                            ),
+                              Row(mainAxisSize: MainAxisSize.min, children: [
+                                const Text('Kind'),
+                                const SizedBox(width: 10),
+                                SizedBox(
+                                  width: 300,
+                                  child: DropdownButton<String>(
+                                    value: dropdownValue,
+                                    items: <String>[
+                                      'normal',
+                                      'vv',
+                                      'konsti',
+                                      'ersatz',
+                                      'dringlichkeit',
+                                    ].map<DropdownMenuItem<String>>(
+                                        (String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value),
+                                      );
+                                    }).toList(),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        dropdownValue = value!;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ]),
+                              const SizedBox(height: 20),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text("Datum"),
+                                  const SizedBox(width: 10),
+                                  ElevatedButton(
+                                      onPressed: () async =>
+                                          await showDatePicker(
+                                                  context: context,
+                                                  firstDate: DateTime(2000),
+                                                  lastDate: DateTime(3000),
+                                                  initialDate: date)
+                                              // ignore: unnecessary_set_literal
+                                              .then((selectedDate) => {
+                                                    if (selectedDate != null)
+                                                      {
+                                                        setState(() {
+                                                          date = selectedDate;
+                                                        })
+                                                      }
+                                                  }),
+                                      child: Text(DateFormat('dd.MM.yyyy')
+                                          .format(date))),
+                                  SizedBox(width: 10),
+                                  const Text("Time"),
+                                  const SizedBox(width: 10),
+                                  ElevatedButton(
+                                      onPressed: () async =>
+                                          await showTimePicker(
+                                                  initialEntryMode:
+                                                      TimePickerEntryMode.input,
+                                                  context: context,
+                                                  initialTime:
+                                                      TimeOfDay.fromDateTime(
+                                                          date))
+                                              // ignore: unnecessary_set_literal
+                                              .then((selectedDate) => {
+                                                    if (selectedDate != null)
+                                                      {
+                                                        setState(() {
+                                                          date = DateTime(
+                                                              date.year,
+                                                              date.month,
+                                                              date.day,
+                                                              selectedDate.hour,
+                                                              selectedDate
+                                                                  .minute);
+                                                        })
+                                                      }
+                                                  }),
+                                      child: Text(DateFormat('dd.MM.yyyy')
+                                          .format(date))),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              Row(mainAxisSize: MainAxisSize.min, children: [
+                                const Text("Location"),
+                                const SizedBox(width: 10),
+                                SizedBox(
+                                  width: 300,
+                                  child: TextField(
+                                    controller: locationController,
+                                    decoration: const InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      labelText: 'Location',
+                                    ),
+                                  ),
+                                ),
+                              ]),
+                              const SizedBox(height: 20),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text('Close'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      addSitzung(dropdownValue, date,
+                                          locationController.text);
+                                    },
+                                    child: const Text('Save'),
+                                  ),
+                                ],
+                              )
+                            ],
                           ),
-                        ]),
-                        const SizedBox(height: 20),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Text('Close'),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                                addSitzung(dropdownValue, date,
-                                    locationController.text);
-                              },
-                              child: const Text('Save'),
-                            ),
-                          ],
-                        )
-                      ],
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-            ),
-          ),
-        ]),
-        body: StreamBuilder<List<Sitzung>>(
-            stream: futureSitzung.asStream(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState != ConnectionState.done) {
-                return Text("Reloading");
-              }
-              if (snapshot.hasData) {
-                return ListView(
-                    padding: const EdgeInsets.all(8), children: _contents);
-              }
-              if (snapshot.hasError) {
-                return Text('${snapshot.error}');
-              }
+                )),
+          ]),
+        ),
+        body: Container(
+            color: darkTheme.colorScheme.surface,
+            child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: weite * 0.2),
+                child: StreamBuilder<List<Sitzung>>(
+                    stream: futureSitzung.asStream(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState != ConnectionState.done) {
+                        return Text("Reloading");
+                      }
+                      if (snapshot.hasData) {
+                        return ListView(
+                            padding: const EdgeInsets.all(8),
+                            children: _contents);
+                      }
+                      if (snapshot.hasError) {
+                        return Text('${snapshot.error}');
+                      }
 
-              // By default, show a loading spinner.
-              return const CircularProgressIndicator();
-            }));
+                      // By default, show a loading spinner.
+                      return const CircularProgressIndicator();
+                    }))));
   }
 
   Future<void> addSitzung(
@@ -312,13 +362,6 @@ class _MainPageState extends State<MainPage> {
       futureSitzung = Sitzung.fetchSitzungen();
       futureSitzung.then((sitzungen) => {
             _contents = List.generate(sitzungen.length, (index) {
-              Color color;
-              if (index % 2 == 0) {
-                color = Colors.white;
-              } else {
-                color = Colors.grey;
-              }
-
               return Column(
                 children: <Widget>[
                   GestureDetector(
@@ -331,7 +374,6 @@ class _MainPageState extends State<MainPage> {
                     },
                     child: Container(
                       height: 50,
-                      color: color,
                       child: Row(
                         mainAxisSize: MainAxisSize.max,
                         children: [
@@ -341,17 +383,17 @@ class _MainPageState extends State<MainPage> {
                                   const EdgeInsets.only(left: 8, bottom: 4),
                               child: Text(
                                 '${DateFormat("dd.MM.yyyy HH:mm").format((tz.TZDateTime.from(sitzungen[index].datetime, tz.getLocation("Europe/Berlin"))))}',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16),
+                                style: darkTheme.textTheme.bodyMedium!
+                                    .copyWith(fontWeight: FontWeight.bold),
                               ),
                             ),
                           ),
-                          const Padding(
+                          Padding(
                             padding: EdgeInsets.only(right: 8, bottom: 4),
                             child: Text(
                               '>',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
+                              style: darkTheme.textTheme.bodyMedium!
+                                  .copyWith(fontWeight: FontWeight.bold),
                             ),
                           ),
                         ],
