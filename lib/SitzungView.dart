@@ -35,6 +35,16 @@ class _SitzungsViewState extends State<SitzungView> {
   final antragstextController = TextEditingController();
   var dragedIndex = -1;
 
+  final ThemeData darkTheme = ThemeData(
+      colorScheme: ColorScheme.dark(
+          primary: Color.fromRGBO(119, 119, 119, 1),
+          secondary: Color.fromRGBO(85, 85, 85, 1),
+          surface: Color.fromRGBO(50, 50, 50, 1),
+          surfaceDim: Color.fromRGBO(40, 40, 40, 1)),
+      textTheme: TextTheme(bodyMedium: TextStyle(color: Colors.white)),
+      buttonTheme:
+          ButtonThemeData(buttonColor: Color.fromRGBO(11, 80, 181, 1)));
+
   @override
   void initState() {
     super.initState();
@@ -43,47 +53,72 @@ class _SitzungsViewState extends State<SitzungView> {
     futureTops.then((tops) => {
           _contents = List.generate(tops.length, (index) {
             return DragAndDropList(
-              header: Column(
-                children: <Widget>[
-                  Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8, bottom: 4),
-                        child: Text(
-                          'Top ${index + 2}: ${tops[index].name}',
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16),
+                decoration: BoxDecoration(
+                  color: darkTheme.colorScheme.surfaceDim,
+                ),
+                header: Column(
+                  children: <Widget>[
+                    Row(
+                      children: [
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(top: 8, left: 8, bottom: 2),
+                          child: Text(
+                            'Top ${index + 2}: ${tops[index].name}',
+                            style: darkTheme.textTheme.bodyMedium!
+                                .copyWith(fontWeight: FontWeight.bold),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              children: <DragAndDropItem>[
-                for (var antrag in tops[index].antraege)
-                  DragAndDropItem(
-                    child: Container(
-                      height: 50,
-                      color: Colors.white,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 8, bottom: 4),
-                              child: Text(
-                                antrag.title,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
+                        Padding(
+                            padding: EdgeInsets.only(top: 8, left: 8, right: 4),
+                            child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: darkTheme
+                                        .colorScheme.secondary
+                                        .withOpacity(0.5),
+                                    foregroundColor:
+                                        darkTheme.textTheme.bodyMedium!.color),
+                                onPressed: () {},
+                                child: const Text("EDIT"))),
+                      ],
+                    ),
+                  ],
+                ),
+                children: List.generate(tops[index].antraege.length, (index2) {
+                  Color itemColor = index2 % 2 == 0
+                      ? darkTheme.colorScheme.primary.withOpacity(0.5)
+                      : darkTheme.colorScheme.secondary.withOpacity(0.5);
+                  return DragAndDropItem(
+                      child: Container(
+                    color: itemColor,
+                    height: 50,
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Row(
+                      children: [
+                        Padding(
+                            padding: EdgeInsets.only(left: 8, right: 4),
+                            child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        darkTheme.colorScheme.surfaceDim,
+                                    foregroundColor:
+                                        darkTheme.textTheme.bodyMedium!.color),
+                                onPressed: () {},
+                                child: const Text("EDIT"))),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8, bottom: 4),
+                            child: Text(
+                              '${tops[index].antraege[index2].title}',
+                              style: darkTheme.textTheme.bodyMedium!
+                                  .copyWith(fontWeight: FontWeight.bold),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ),
-              ],
-            );
+                  ));
+                }));
           })
         });
 
@@ -92,9 +127,12 @@ class _SitzungsViewState extends State<SitzungView> {
           _contentsAntraege = ListView.builder(
               itemCount: antraege.length,
               itemBuilder: (context, index) {
+                Color itemColor = index % 2 == 0
+                    ? darkTheme.colorScheme.primary.withOpacity(0.5)
+                    : darkTheme.colorScheme.secondary.withOpacity(0.5);
                 return Container(
+                  color: itemColor,
                   height: 50,
-                  color: Colors.white,
                   child: Row(
                     children: [
                       Expanded(
@@ -106,7 +144,6 @@ class _SitzungsViewState extends State<SitzungView> {
                           data: DragAndDropItem(
                               child: Container(
                             height: 50,
-                            color: Colors.white,
                             child: Row(
                               children: [
                                 Expanded(
@@ -115,9 +152,9 @@ class _SitzungsViewState extends State<SitzungView> {
                                         left: 8, bottom: 4),
                                     child: Text(
                                       antraege[index].title,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16),
+                                      style: darkTheme.textTheme.bodyMedium!
+                                          .copyWith(
+                                              fontWeight: FontWeight.bold),
                                     ),
                                   ),
                                 ),
@@ -125,14 +162,14 @@ class _SitzungsViewState extends State<SitzungView> {
                             ),
                           )),
                           feedback: Text(antraege[index].title,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16)),
+                              style: darkTheme.textTheme.bodyMedium!
+                                  .copyWith(fontWeight: FontWeight.bold)),
                           child: Padding(
                             padding: const EdgeInsets.only(left: 8, bottom: 4),
                             child: Text(
                               antraege[index].title,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
+                              style: darkTheme.textTheme.bodyMedium!
+                                  .copyWith(fontWeight: FontWeight.bold),
                             ),
                           ),
                         ),
@@ -146,102 +183,98 @@ class _SitzungsViewState extends State<SitzungView> {
 
   @override
   Widget build(BuildContext context) {
-    var backgroundColor = const Color.fromARGB(255, 243, 242, 248);
-
     return Scaffold(
-        backgroundColor: backgroundColor,
-        appBar: AppBar(title: const Text('Sitzung View'), actions: [
-          ElevatedButton(
-            onPressed: () => showCreateTop(),
-            child: const Text('Create Top'),
-          ),
-          ElevatedButton(
-            onPressed: () => showCreateAntrag(),
-            child: const Text('Create Antrag'),
-          ),
-        ]),
-        body: StreamBuilder<List<TopWithAntraege>>(
-            stream: futureTops.asStream(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else {
-                return FutureBuilder<List<Antrag>>(
-                    future: futureAntraege,
-                    builder: (context, secondSnapshot) {
-                      if (secondSnapshot.connectionState ==
-                          ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      } else if (secondSnapshot.hasError) {
-                        return Center(
-                            child: Text('Error: ${secondSnapshot.error}'));
-                      } else {
-                        return Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                  child: DragAndDropLists(
-                                children: _contents,
-                                onItemReorder: _onItemReorder,
-                                onListReorder: _onListReorder,
-                                onItemAdd: _onItemAdd,
-                                onListAdd: _onListAdd,
-                                listPadding: const EdgeInsets.symmetric(
-                                    horizontal: 15, vertical: 10),
-                                itemDivider: Divider(
-                                  thickness: 2,
-                                  height: 2,
-                                  color: backgroundColor,
-                                ),
-                                itemDecorationWhileDragging: BoxDecoration(
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.5),
-                                      spreadRadius: 2,
-                                      blurRadius: 3,
-                                      offset: const Offset(
-                                          0, 0), // changes position of shadow
+        appBar: AppBar(
+            backgroundColor: darkTheme.colorScheme.surfaceDim,
+            foregroundColor: darkTheme.textTheme.bodyMedium!.color,
+            title: const Text('Sitzung View'),
+            actions: [
+              ElevatedButton(
+                onPressed: () => showCreateTop(),
+                child: const Text('Create Top'),
+              ),
+              ElevatedButton(
+                onPressed: () => showCreateAntrag(),
+                child: const Text('Create Antrag'),
+              ),
+            ]),
+        body: Container(
+            color: darkTheme.colorScheme.surface,
+            child: StreamBuilder<List<TopWithAntraege>>(
+                stream: futureTops.asStream(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else {
+                    return FutureBuilder<List<Antrag>>(
+                        future: futureAntraege,
+                        builder: (context, secondSnapshot) {
+                          if (secondSnapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          } else if (secondSnapshot.hasError) {
+                            return Center(
+                                child: Text('Error: ${secondSnapshot.error}'));
+                          } else {
+                            return Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                      child: DragAndDropLists(
+                                    children: _contents,
+                                    onItemReorder: _onItemReorder,
+                                    onListReorder: _onListReorder,
+                                    onItemAdd: _onItemAdd,
+                                    onListAdd: _onListAdd,
+                                    listPadding: const EdgeInsets.symmetric(
+                                        horizontal: 15, vertical: 10),
+                                    itemDecorationWhileDragging: BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.5),
+                                          spreadRadius: 2,
+                                          blurRadius: 3,
+                                          offset: const Offset(0,
+                                              0), // changes position of shadow
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                                listInnerDecoration: BoxDecoration(
-                                  color: Theme.of(context).canvasColor,
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(8.0)),
-                                ),
-                                lastItemTargetHeight: 8,
-                                addLastItemTargetHeightToTop: true,
-                                lastListTargetSize: 40,
-                                listDragHandle: const DragHandle(
-                                  verticalAlignment:
-                                      DragHandleVerticalAlignment.top,
-                                  child: Padding(
-                                    padding: EdgeInsets.only(right: 10),
-                                    child: Icon(
-                                      Icons.menu,
-                                      color: Colors.black26,
+                                    listInnerDecoration: BoxDecoration(
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(8.0)),
                                     ),
-                                  ),
-                                ),
-                                itemDragHandle: const DragHandle(
-                                  child: Padding(
-                                    padding: EdgeInsets.only(right: 10),
-                                    child: Icon(
-                                      Icons.menu,
-                                      color: Colors.blueGrey,
+                                    lastItemTargetHeight: 8,
+                                    addLastItemTargetHeightToTop: true,
+                                    lastListTargetSize: 40,
+                                    listDragHandle: const DragHandle(
+                                      verticalAlignment:
+                                          DragHandleVerticalAlignment.top,
+                                      child: Padding(
+                                        padding:
+                                            EdgeInsets.only(top: 11, right: 10),
+                                        child: Icon(
+                                          Icons.menu,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              )),
-                              Expanded(child: _contentsAntraege)
-                            ]);
-                      }
-                    });
-              }
-            }));
+                                    itemDragHandle: const DragHandle(
+                                      child: Padding(
+                                        padding: EdgeInsets.only(right: 10),
+                                        child: Icon(Icons.menu,
+                                            color: Colors.white70),
+                                      ),
+                                    ),
+                                  )),
+                                  Expanded(child: _contentsAntraege)
+                                ]);
+                          }
+                        });
+                  }
+                })));
   }
 
   _onItemReorder(
@@ -295,8 +328,8 @@ class _SitzungsViewState extends State<SitzungView> {
 
     await http.delete(
         Uri.parse(
-            "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/$topOld/assoc/$antrag"),
-        headers: {"Authorization ": "Bearer $token"},
+            "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/$topOld/assoc/"),
+        headers: {"Authorization": "Bearer $token"},
         body: jsonEncode({"antrag_id": "$antrag"}));
 
     await http.patch(
@@ -351,8 +384,8 @@ class _SitzungsViewState extends State<SitzungView> {
                         padding: const EdgeInsets.only(left: 8, bottom: 4),
                         child: Text(
                           'Top ${index + 2}: ${tops[index].name}',
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16),
+                          style: darkTheme.textTheme.bodyMedium!
+                              .copyWith(fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
@@ -363,7 +396,6 @@ class _SitzungsViewState extends State<SitzungView> {
                     DragAndDropItem(
                       child: Container(
                         height: 50,
-                        color: Colors.white,
                         child: Row(
                           children: [
                             Expanded(
@@ -372,9 +404,8 @@ class _SitzungsViewState extends State<SitzungView> {
                                     const EdgeInsets.only(left: 8, bottom: 4),
                                 child: Text(
                                   antrag.title,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
+                                  style: darkTheme.textTheme.bodyMedium!
+                                      .copyWith(fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ),
@@ -581,7 +612,6 @@ class _SitzungsViewState extends State<SitzungView> {
                 itemBuilder: (context, index) {
                   return Container(
                     height: 50,
-                    color: Colors.white,
                     child: Row(
                       children: [
                         Expanded(
@@ -589,7 +619,6 @@ class _SitzungsViewState extends State<SitzungView> {
                             data: DragAndDropItem(
                                 child: Container(
                               height: 50,
-                              color: Colors.white,
                               child: Row(
                                 children: [
                                   Expanded(
@@ -598,9 +627,9 @@ class _SitzungsViewState extends State<SitzungView> {
                                           left: 8, bottom: 4),
                                       child: Text(
                                         antraege[index].title,
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16),
+                                        style: darkTheme.textTheme.bodyMedium!
+                                            .copyWith(
+                                                fontWeight: FontWeight.bold),
                                       ),
                                     ),
                                   ),
@@ -608,15 +637,15 @@ class _SitzungsViewState extends State<SitzungView> {
                               ),
                             )),
                             feedback: Text(antraege[index].title,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16)),
+                                style: darkTheme.textTheme.bodyMedium!
+                                    .copyWith(fontWeight: FontWeight.bold)),
                             child: Padding(
                               padding:
                                   const EdgeInsets.only(left: 8, bottom: 4),
                               child: Text(
                                 antraege[index].title,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16),
+                                style: darkTheme.textTheme.bodyMedium!
+                                    .copyWith(fontWeight: FontWeight.bold),
                               ),
                             ),
                           ),

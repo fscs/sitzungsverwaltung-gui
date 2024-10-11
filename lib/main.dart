@@ -90,11 +90,7 @@ class _MainPageState extends State<MainPage> {
                                         darkTheme.colorScheme.surfaceDim,
                                     foregroundColor:
                                         darkTheme.textTheme.bodyMedium!.color),
-                                onPressed: () {
-                                  html.window.open(
-                                      "https://fscs.hhu.de/api/sitzungen/${sitzungen[index].id}/pdf",
-                                      "pdf");
-                                },
+                                onPressed: () {},
                                 child: const Text("EDIT"))),
                         SizedBox(
                             width: 100,
