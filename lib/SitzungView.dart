@@ -595,7 +595,11 @@ class _SitzungsViewState extends State<SitzungView> {
                               backgroundColor: darkTheme.colorScheme.surfaceDim,
                               foregroundColor:
                                   darkTheme.textTheme.bodyMedium!.color),
-                          onPressed: () {},
+                          onPressed: () => showEditAntrag(
+                              tops[index].antraege[index2].id,
+                              tops[index].antraege[index2].title,
+                              tops[index].antraege[index2].begruendung,
+                              tops[index].antraege[index2].antragstext),
                           child: const Text("EDIT"))),
                   Expanded(
                     child: Padding(
@@ -687,5 +691,118 @@ class _SitzungsViewState extends State<SitzungView> {
       futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
       futureTops.then((tops) => {_contents = fetchTops(tops)});
     });
+  }
+
+  Future<void> editAntrag(UuidValue antragid, String titel, String begruendung,
+      String antragstext) async {
+    final token = await OAuth.getToken(context);
+    await http.patch(Uri.parse("https://fscs.hhu.de/api/anträge/$antragid/"),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json; charset=UTF-8"
+        },
+        body: jsonEncode({
+          "titel": titel,
+          "begründung": begruendung,
+          "antragstext": antragstext,
+        }));
+    setState(() {
+      futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
+      futureTops.then((tops) => {_contents = fetchTops(tops)});
+    });
+  }
+
+  showEditAntrag(
+      UuidValue id, String title, String begruendung, String antragstext) {
+    titleController.text = title;
+    begruendungController.text = begruendung;
+    antragstextController.text = antragstext;
+
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) => Dialog(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                const SizedBox(
+                  height: 10,
+                ),
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  const Text("Titel"),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 300,
+                    child: TextField(
+                      controller: titleController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Titel',
+                      ),
+                    ),
+                  ),
+                ]),
+                const SizedBox(height: 20),
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  const Text("Begründung"),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 300,
+                    child: TextField(
+                      controller: begruendungController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Begeündung',
+                      ),
+                    ),
+                  ),
+                ]),
+                const SizedBox(height: 20),
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  const Text("Antragstext"),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 300,
+                    child: TextField(
+                      controller: antragstextController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Antragstext',
+                      ),
+                    ),
+                  ),
+                ]),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('Close'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        editAntrag(
+                            id,
+                            titleController.text,
+                            begruendungController.text,
+                            antragstextController.text);
+                      },
+                      child: const Text('Save'),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
