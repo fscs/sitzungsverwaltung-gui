@@ -63,8 +63,9 @@ class _SitzungsViewState extends State<SitzungView> {
         appBar: AppBar(
             backgroundColor: darkTheme.colorScheme.surfaceDim,
             foregroundColor: darkTheme.textTheme.bodyMedium!.color,
-            title: const Text('Sitzung View'),
-            actions: [
+            title: Row(children: [
+              const Text('Sitzung View'),
+              const SizedBox(width: 20),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                     foregroundColor: darkTheme.textTheme.bodyMedium!.color,
@@ -72,6 +73,8 @@ class _SitzungsViewState extends State<SitzungView> {
                 onPressed: () => showCreateTop(),
                 child: const Text('Create Top'),
               ),
+            ]),
+            actions: [
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                     foregroundColor: darkTheme.textTheme.bodyMedium!.color,
@@ -79,6 +82,7 @@ class _SitzungsViewState extends State<SitzungView> {
                 onPressed: () => showCreateAntrag(),
                 child: const Text('Create Antrag'),
               ),
+              const SizedBox(width: 20),
             ]),
         body: Container(
             color: darkTheme.colorScheme.surface,
@@ -239,6 +243,11 @@ class _SitzungsViewState extends State<SitzungView> {
           },
           body: jsonEncode({"weight": top.weight}));
     }
+
+    setState(() {
+      futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
+      futureTops.then((tops) => {_contents = fetchTops(tops)});
+    });
   }
 
   Future<void> addTop(String dropdownValue, String text) async {
