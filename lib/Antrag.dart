@@ -27,7 +27,7 @@ class Antrag {
 
   static Future<List<Antrag>> fetchAntraege() async {
     final response =
-        await http.get(Uri.parse('https://fscs.hhu.de/api/anträge/'));
+        await http.get(Uri.parse('https://fscs.hhu.de/api/anträge/orphans/'));
 
     if (response.statusCode == 200) {
       var list = json.decode(utf8.decode(response.bodyBytes)) as List;

@@ -152,6 +152,7 @@ class _MainPageState extends State<MainPage> {
       context: context,
       builder: (BuildContext context) => StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) => Dialog(
+          backgroundColor: darkTheme.colorScheme.surface,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -162,12 +163,17 @@ class _MainPageState extends State<MainPage> {
                   height: 10,
                 ),
                 Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Text('Kind'),
+                  const Text('Kind', style: TextStyle(color: Colors.white)),
                   const SizedBox(width: 10),
                   SizedBox(
                     width: 300,
                     child: DropdownButton<String>(
+                      dropdownColor: darkTheme.colorScheme.surface,
                       value: dropdownValue,
+                      icon: const Icon(
+                        Icons.arrow_drop_down,
+                        color: Colors.white,
+                      ),
                       items: <String>[
                         'normal',
                         'vv',
@@ -177,7 +183,8 @@ class _MainPageState extends State<MainPage> {
                       ].map<DropdownMenuItem<String>>((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
-                          child: Text(value),
+                          child: Text(value,
+                              style: const TextStyle(color: Colors.white)),
                         );
                       }).toList(),
                       onChanged: (value) {
@@ -192,7 +199,7 @@ class _MainPageState extends State<MainPage> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text("Datum"),
+                    const Text("Datum", style: TextStyle(color: Colors.white)),
                     const SizedBox(width: 10),
                     ElevatedButton(
                         onPressed: () async => await showDatePicker(
@@ -211,7 +218,7 @@ class _MainPageState extends State<MainPage> {
                                 }),
                         child: Text(DateFormat('dd.MM.yyyy').format(date))),
                     const SizedBox(width: 10),
-                    const Text("Time"),
+                    const Text("Time", style: TextStyle(color: Colors.white)),
                     const SizedBox(width: 10),
                     ElevatedButton(
                         onPressed: () async => await showTimePicker(
@@ -237,7 +244,7 @@ class _MainPageState extends State<MainPage> {
                 ),
                 const SizedBox(height: 20),
                 Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Text("Location"),
+                  const Text("Location", style: TextStyle(color: Colors.white)),
                   const SizedBox(width: 10),
                   SizedBox(
                     width: 300,
@@ -246,6 +253,7 @@ class _MainPageState extends State<MainPage> {
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Location',
+                        labelStyle: TextStyle(color: Colors.white70),
                       ),
                     ),
                   ),
@@ -258,7 +266,8 @@ class _MainPageState extends State<MainPage> {
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      child: const Text('Close'),
+                      child: const Text('Close',
+                          style: TextStyle(color: Colors.white)),
                     ),
                     TextButton(
                       onPressed: () {
@@ -266,7 +275,16 @@ class _MainPageState extends State<MainPage> {
                         editSitzung(
                             id, dropdownValue, date, locationController.text);
                       },
-                      child: const Text('Save'),
+                      child: const Text('Save',
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        deleteSitzung(id);
+                      },
+                      child: const Text('DELETE',
+                          style: TextStyle(color: Colors.redAccent)),
                     ),
                   ],
                 )
@@ -397,6 +415,7 @@ class _MainPageState extends State<MainPage> {
       context: context,
       builder: (BuildContext context) => StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) => Dialog(
+          backgroundColor: darkTheme.colorScheme.surface,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -407,12 +426,17 @@ class _MainPageState extends State<MainPage> {
                   height: 10,
                 ),
                 Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Text('Kind'),
+                  const Text('Kind', style: TextStyle(color: Colors.white)),
                   const SizedBox(width: 10),
                   SizedBox(
                     width: 300,
                     child: DropdownButton<String>(
+                      dropdownColor: darkTheme.colorScheme.surface,
                       value: dropdownValue,
+                      icon: const Icon(
+                        Icons.arrow_drop_down,
+                        color: Colors.white,
+                      ),
                       items: <String>[
                         'normal',
                         'vv',
@@ -422,7 +446,8 @@ class _MainPageState extends State<MainPage> {
                       ].map<DropdownMenuItem<String>>((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
-                          child: Text(value),
+                          child: Text(value,
+                              style: const TextStyle(color: Colors.white)),
                         );
                       }).toList(),
                       onChanged: (value) {
@@ -437,7 +462,7 @@ class _MainPageState extends State<MainPage> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text("Datum"),
+                    const Text("Datum", style: TextStyle(color: Colors.white)),
                     const SizedBox(width: 10),
                     ElevatedButton(
                         onPressed: () async => await showDatePicker(
@@ -456,7 +481,7 @@ class _MainPageState extends State<MainPage> {
                                 }),
                         child: Text(DateFormat('dd.MM.yyyy').format(date))),
                     const SizedBox(width: 10),
-                    const Text("Time"),
+                    const Text("Time", style: TextStyle(color: Colors.white)),
                     const SizedBox(width: 10),
                     ElevatedButton(
                         onPressed: () async => await showTimePicker(
@@ -482,7 +507,7 @@ class _MainPageState extends State<MainPage> {
                 ),
                 const SizedBox(height: 20),
                 Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Text("Location"),
+                  const Text("Location", style: TextStyle(color: Colors.white)),
                   const SizedBox(width: 10),
                   SizedBox(
                     width: 300,
@@ -491,6 +516,7 @@ class _MainPageState extends State<MainPage> {
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Location',
+                        labelStyle: TextStyle(color: Colors.white70),
                       ),
                     ),
                   ),
@@ -503,7 +529,8 @@ class _MainPageState extends State<MainPage> {
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      child: const Text('Close'),
+                      child: const Text('Close',
+                          style: TextStyle(color: Colors.white)),
                     ),
                     TextButton(
                       onPressed: () {
@@ -511,7 +538,8 @@ class _MainPageState extends State<MainPage> {
                         addSitzung(
                             dropdownValue, date, locationController.text);
                       },
-                      child: const Text('Save'),
+                      child: const Text('Save',
+                          style: TextStyle(color: Colors.white)),
                     ),
                   ],
                 )
@@ -521,5 +549,20 @@ class _MainPageState extends State<MainPage> {
         ),
       ),
     );
+  }
+
+  Future<void> deleteSitzung(UuidValue id) async {
+    final token = await OAuth.getToken(context);
+    await http.delete(Uri.parse("https://fscs.hhu.de/api/sitzungen/$id/"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        });
+
+    setState(() {
+      futureSitzung = Sitzung.fetchSitzungen();
+      futureSitzung
+          .then((sitzungen) => {_contents = fetchSitzungen(sitzungen)});
+    });
   }
 }

@@ -66,10 +66,16 @@ class _SitzungsViewState extends State<SitzungView> {
             title: const Text('Sitzung View'),
             actions: [
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    foregroundColor: darkTheme.textTheme.bodyMedium!.color,
+                    backgroundColor: const Color.fromRGBO(11, 80, 181, 1)),
                 onPressed: () => showCreateTop(),
                 child: const Text('Create Top'),
               ),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    foregroundColor: darkTheme.textTheme.bodyMedium!.color,
+                    backgroundColor: const Color.fromRGBO(11, 80, 181, 1)),
                 onPressed: () => showCreateAntrag(),
                 child: const Text('Create Antrag'),
               ),
@@ -261,6 +267,7 @@ class _SitzungsViewState extends State<SitzungView> {
       context: context,
       builder: (BuildContext context) => StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) => Dialog(
+          backgroundColor: darkTheme.colorScheme.surface,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -271,22 +278,24 @@ class _SitzungsViewState extends State<SitzungView> {
                   height: 10,
                 ),
                 Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Text("Name"),
+                  const Text("Name", style: TextStyle(color: Colors.white)),
                   const SizedBox(width: 10),
                   SizedBox(
                     width: 300,
                     child: TextField(
                       controller: nameController,
+                      style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Name',
+                        labelStyle: TextStyle(color: Colors.white70),
                       ),
                     ),
                   ),
                 ]),
                 const SizedBox(height: 20),
                 Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Text('Kind'),
+                  const Text('Kind', style: TextStyle(color: Colors.white)),
                   const SizedBox(width: 10),
                   SizedBox(
                     width: 300,
@@ -300,7 +309,8 @@ class _SitzungsViewState extends State<SitzungView> {
                       ].map<DropdownMenuItem<String>>((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
-                          child: Text(value),
+                          child: Text(value,
+                              style: TextStyle(color: Colors.white)),
                         );
                       }).toList(),
                       onChanged: (value) {
@@ -319,14 +329,16 @@ class _SitzungsViewState extends State<SitzungView> {
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      child: const Text('Close'),
+                      child: const Text('Close',
+                          style: TextStyle(color: Colors.white)),
                     ),
                     TextButton(
                       onPressed: () {
                         Navigator.pop(context);
                         addTop(dropdownValue, nameController.text);
                       },
-                      child: const Text('Save'),
+                      child: const Text('Save',
+                          style: TextStyle(color: Colors.white)),
                     ),
                   ],
                 )
@@ -345,6 +357,7 @@ class _SitzungsViewState extends State<SitzungView> {
       context: context,
       builder: (BuildContext context) => StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) => Dialog(
+          backgroundColor: darkTheme.colorScheme.surface,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -355,22 +368,24 @@ class _SitzungsViewState extends State<SitzungView> {
                   height: 10,
                 ),
                 Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Text("Name"),
+                  const Text("Name", style: TextStyle(color: Colors.white)),
                   const SizedBox(width: 10),
                   SizedBox(
                     width: 300,
                     child: TextField(
                       controller: nameController,
+                      style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Name',
+                        labelStyle: TextStyle(color: Colors.white70),
                       ),
                     ),
                   ),
                 ]),
                 const SizedBox(height: 20),
                 Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Text('Kind'),
+                  const Text('Kind', style: TextStyle(color: Colors.white)),
                   const SizedBox(width: 10),
                   SizedBox(
                     width: 300,
@@ -384,7 +399,8 @@ class _SitzungsViewState extends State<SitzungView> {
                       ].map<DropdownMenuItem<String>>((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
-                          child: Text(value),
+                          child: Text(value,
+                              style: TextStyle(color: Colors.white)),
                         );
                       }).toList(),
                       onChanged: (value) {
@@ -403,14 +419,16 @@ class _SitzungsViewState extends State<SitzungView> {
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      child: const Text('Close'),
+                      child: const Text('Close',
+                          style: TextStyle(color: Colors.white)),
                     ),
                     TextButton(
                       onPressed: () {
                         Navigator.pop(context);
                         editTop(uuid, dropdownValue, nameController.text);
                       },
-                      child: const Text('Save'),
+                      child: const Text('Save',
+                          style: TextStyle(color: Colors.white)),
                     ),
                   ],
                 )
@@ -423,10 +441,15 @@ class _SitzungsViewState extends State<SitzungView> {
   }
 
   showCreateAntrag() {
+    titleController.text = "";
+    begruendungController.text = "";
+    antragstextController.text = "";
+
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) => Dialog(
+          backgroundColor: darkTheme.colorScheme.surface,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -437,45 +460,53 @@ class _SitzungsViewState extends State<SitzungView> {
                   height: 10,
                 ),
                 Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Text("Titel"),
+                  const Text("Titel", style: TextStyle(color: Colors.white)),
                   const SizedBox(width: 10),
                   SizedBox(
                     width: 300,
                     child: TextField(
                       controller: titleController,
+                      style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Titel',
+                        labelStyle: TextStyle(color: Colors.white70),
                       ),
                     ),
                   ),
                 ]),
                 const SizedBox(height: 20),
                 Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Text("Begründung"),
+                  const Text("Begründung",
+                      style: TextStyle(color: Colors.white)),
                   const SizedBox(width: 10),
                   SizedBox(
                     width: 300,
                     child: TextField(
                       controller: begruendungController,
+                      style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Begeündung',
+                        labelStyle: TextStyle(color: Colors.white70),
                       ),
                     ),
                   ),
                 ]),
                 const SizedBox(height: 20),
                 Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Text("Antragstext"),
+                  const Text("Antragstext",
+                      style: TextStyle(color: Colors.white)),
                   const SizedBox(width: 10),
                   SizedBox(
                     width: 300,
                     child: TextField(
                       controller: antragstextController,
+                      style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Antragstext',
+                        labelStyle: TextStyle(color: Colors.white70),
                       ),
                     ),
                   ),
@@ -488,7 +519,8 @@ class _SitzungsViewState extends State<SitzungView> {
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      child: const Text('Close'),
+                      child: const Text('Close',
+                          style: TextStyle(color: Colors.white)),
                     ),
                     TextButton(
                       onPressed: () {
@@ -496,7 +528,8 @@ class _SitzungsViewState extends State<SitzungView> {
                         addAntrag(titleController, begruendungController,
                             antragstextController);
                       },
-                      child: const Text('Save'),
+                      child: const Text('Save',
+                          style: TextStyle(color: Colors.white)),
                     ),
                   ],
                 )
@@ -542,6 +575,11 @@ class _SitzungsViewState extends State<SitzungView> {
             "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/$top/assoc/"),
         headers: {"Authorization": "Bearer $token"},
         body: jsonEncode({"antrag_id": "$antragId"}));
+
+    setState(() {
+      futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
+      futureTops.then((tops) => {_contents = fetchTops(tops)});
+    });
   }
 
   List<DragAndDropList> fetchTops(List<TopWithAntraege> tops) {
@@ -589,18 +627,21 @@ class _SitzungsViewState extends State<SitzungView> {
               child: Row(
                 children: [
                   Padding(
-                      padding: const EdgeInsets.only(left: 8, right: 4),
-                      child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: darkTheme.colorScheme.surfaceDim,
-                              foregroundColor:
-                                  darkTheme.textTheme.bodyMedium!.color),
-                          onPressed: () => showEditAntrag(
-                              tops[index].antraege[index2].id,
-                              tops[index].antraege[index2].title,
-                              tops[index].antraege[index2].begruendung,
-                              tops[index].antraege[index2].antragstext),
-                          child: const Text("EDIT"))),
+                    padding: const EdgeInsets.only(left: 8, right: 4),
+                    child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: darkTheme.colorScheme.surfaceDim,
+                            foregroundColor:
+                                darkTheme.textTheme.bodyMedium!.color),
+                        onPressed: () => showEditAntrag(
+                            tops[index].antraege[index2].id,
+                            tops[index].antraege[index2].title,
+                            tops[index].antraege[index2].begruendung,
+                            tops[index].antraege[index2].antragstext,
+                            tops[index].id,
+                            "tops"),
+                        child: const Text("EDIT")),
+                  ),
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(left: 8, bottom: 4),
@@ -658,14 +699,32 @@ class _SitzungsViewState extends State<SitzungView> {
                     feedback: Text(antraege[index].title,
                         style: darkTheme.textTheme.bodyMedium!
                             .copyWith(fontWeight: FontWeight.bold)),
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 8, bottom: 4),
-                      child: Text(
-                        antraege[index].title,
-                        style: darkTheme.textTheme.bodyMedium!
-                            .copyWith(fontWeight: FontWeight.bold),
-                      ),
-                    ),
+                    child: Row(children: [
+                      Padding(
+                          padding: const EdgeInsets.only(left: 8, right: 4),
+                          child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      darkTheme.colorScheme.surfaceDim,
+                                  foregroundColor:
+                                      darkTheme.textTheme.bodyMedium!.color),
+                              onPressed: () => showEditAntrag(
+                                  antraege[index].id,
+                                  antraege[index].title,
+                                  antraege[index].begruendung,
+                                  antraege[index].antragstext,
+                                  UuidValue.fromString(""),
+                                  "antraege"),
+                              child: const Text("EDIT"))),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8, bottom: 4),
+                        child: Text(
+                          antraege[index].title,
+                          style: darkTheme.textTheme.bodyMedium!
+                              .copyWith(fontWeight: FontWeight.bold),
+                        ),
+                      )
+                    ]),
                   ),
                 ),
               ],
@@ -709,11 +768,15 @@ class _SitzungsViewState extends State<SitzungView> {
     setState(() {
       futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
       futureTops.then((tops) => {_contents = fetchTops(tops)});
+
+      futureAntraege = Antrag.fetchAntraege();
+      futureAntraege
+          .then((antraege) => {_contentsAntraege = fetchAntraege(antraege)});
     });
   }
 
-  showEditAntrag(
-      UuidValue id, String title, String begruendung, String antragstext) {
+  showEditAntrag(UuidValue id, String title, String begruendung,
+      String antragstext, UuidValue topid, String callPoint) {
     titleController.text = title;
     begruendungController.text = begruendung;
     antragstextController.text = antragstext;
@@ -722,6 +785,7 @@ class _SitzungsViewState extends State<SitzungView> {
       context: context,
       builder: (BuildContext context) => StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) => Dialog(
+          backgroundColor: darkTheme.colorScheme.surface,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -732,45 +796,53 @@ class _SitzungsViewState extends State<SitzungView> {
                   height: 10,
                 ),
                 Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Text("Titel"),
+                  const Text("Titel", style: TextStyle(color: Colors.white)),
                   const SizedBox(width: 10),
                   SizedBox(
                     width: 300,
                     child: TextField(
                       controller: titleController,
+                      style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Titel',
+                        labelStyle: TextStyle(color: Colors.white70),
                       ),
                     ),
                   ),
                 ]),
                 const SizedBox(height: 20),
                 Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Text("Begründung"),
+                  const Text("Begründung",
+                      style: TextStyle(color: Colors.white)),
                   const SizedBox(width: 10),
                   SizedBox(
                     width: 300,
                     child: TextField(
                       controller: begruendungController,
+                      style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Begeündung',
+                        labelStyle: TextStyle(color: Colors.white70),
                       ),
                     ),
                   ),
                 ]),
                 const SizedBox(height: 20),
                 Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Text("Antragstext"),
+                  const Text("Antragstext",
+                      style: TextStyle(color: Colors.white)),
                   const SizedBox(width: 10),
                   SizedBox(
                     width: 300,
                     child: TextField(
                       controller: antragstextController,
+                      style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Antragstext',
+                        labelStyle: TextStyle(color: Colors.white70),
                       ),
                     ),
                   ),
@@ -783,7 +855,8 @@ class _SitzungsViewState extends State<SitzungView> {
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      child: const Text('Close'),
+                      child: const Text('Close',
+                          style: TextStyle(color: Colors.white)),
                     ),
                     TextButton(
                       onPressed: () {
@@ -794,8 +867,26 @@ class _SitzungsViewState extends State<SitzungView> {
                             begruendungController.text,
                             antragstextController.text);
                       },
-                      child: const Text('Save'),
+                      child: const Text('Save',
+                          style: TextStyle(color: Colors.white)),
                     ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        deleteAntrag(id);
+                      },
+                      child: const Text('DELETE',
+                          style: TextStyle(color: Colors.redAccent)),
+                    ),
+                    if (callPoint == "tops")
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          deleteAntragAssoc(topid, id);
+                        },
+                        child: const Text('DELETE ASSOCIATION',
+                            style: TextStyle(color: Colors.redAccent)),
+                      ),
                   ],
                 )
               ],
@@ -804,5 +895,39 @@ class _SitzungsViewState extends State<SitzungView> {
         ),
       ),
     );
+  }
+
+  Future<void> deleteAntrag(UuidValue id) async {
+    final token = await OAuth.getToken(context);
+    await http
+        .delete(Uri.parse("https://fscs.hhu.de/api/anträge/$id/"), headers: {
+      "Authorization": "Bearer $token",
+      "Content-Type": "application/json; charset=UTF-8"
+    });
+
+    setState(() {
+      futureAntraege = Antrag.fetchAntraege();
+      futureAntraege
+          .then((antraege) => {_contentsAntraege = fetchAntraege(antraege)});
+      futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
+      futureTops.then((tops) => {_contents = fetchTops(tops)});
+    });
+  }
+
+  Future<void> deleteAntragAssoc(UuidValue topid, UuidValue id) async {
+    final token = await OAuth.getToken(context);
+    await http.delete(
+        Uri.parse(
+            "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/$topid/assoc/"),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json; charset=UTF-8"
+        },
+        body: jsonEncode({"antrag_id": "$id"}));
+
+    setState(() {
+      futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
+      futureTops.then((tops) => {_contents = fetchTops(tops)});
+    });
   }
 }
