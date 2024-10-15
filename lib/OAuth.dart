@@ -1,8 +1,22 @@
 import 'package:flutter/widgets.dart';
 import 'package:openidconnect/openidconnect.dart';
+import 'dart:html';
 
 class OAuth {
   static Future<String> getToken(BuildContext context) async {
+    final cookie = document.cookie!;
+
+    final token = cookie
+        .split(";")
+        .map((e) => e.trim())
+        .where((e) => e.startsWith("access_token="))
+        .map((e) => e.substring("access_token=".length))
+        .firstWhere((e) => true, orElse: () => "");
+
+    // if (token.isNotEmpty) {
+    //   return token;
+    // }
+
     final response = await OpenIdConnect.authorizeInteractive(
       // ignore: use_build_context_synchronously
       context: context,
@@ -33,6 +47,8 @@ class OAuth {
           useWebPopup: true,
           additionalParameters: {}),
     );
+
+    document.cookie = "access_token=${response!.accessToken}; path=/;";
 
     return response!.accessToken;
   }

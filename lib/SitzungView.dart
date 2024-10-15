@@ -36,149 +36,25 @@ class _SitzungsViewState extends State<SitzungView> {
   var dragedIndex = -1;
 
   final ThemeData darkTheme = ThemeData(
-      colorScheme: ColorScheme.dark(
+      colorScheme: const ColorScheme.dark(
           primary: Color.fromRGBO(119, 119, 119, 1),
           secondary: Color.fromRGBO(85, 85, 85, 1),
           surface: Color.fromRGBO(50, 50, 50, 1),
           surfaceDim: Color.fromRGBO(40, 40, 40, 1)),
-      textTheme: TextTheme(bodyMedium: TextStyle(color: Colors.white)),
+      textTheme: const TextTheme(bodyMedium: TextStyle(color: Colors.white)),
       buttonTheme:
-          ButtonThemeData(buttonColor: Color.fromRGBO(11, 80, 181, 1)));
+          const ButtonThemeData(buttonColor: Color.fromRGBO(11, 80, 181, 1)));
 
   @override
   void initState() {
     super.initState();
 
     futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
-    futureTops.then((tops) => {
-          _contents = List.generate(tops.length, (index) {
-            return DragAndDropList(
-                decoration: BoxDecoration(
-                  color: darkTheme.colorScheme.surfaceDim,
-                ),
-                header: Column(
-                  children: <Widget>[
-                    Row(
-                      children: [
-                        Padding(
-                          padding:
-                              const EdgeInsets.only(top: 8, left: 8, bottom: 2),
-                          child: Text(
-                            'Top ${index + 2}: ${tops[index].name}',
-                            style: darkTheme.textTheme.bodyMedium!
-                                .copyWith(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        Padding(
-                            padding: EdgeInsets.only(top: 8, left: 8, right: 4),
-                            child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                    backgroundColor: darkTheme
-                                        .colorScheme.secondary
-                                        .withOpacity(0.5),
-                                    foregroundColor:
-                                        darkTheme.textTheme.bodyMedium!.color),
-                                onPressed: () {},
-                                child: const Text("EDIT"))),
-                      ],
-                    ),
-                  ],
-                ),
-                children: List.generate(tops[index].antraege.length, (index2) {
-                  Color itemColor = index2 % 2 == 0
-                      ? darkTheme.colorScheme.primary.withOpacity(0.5)
-                      : darkTheme.colorScheme.secondary.withOpacity(0.5);
-                  return DragAndDropItem(
-                      child: Container(
-                    color: itemColor,
-                    height: 50,
-                    margin: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Row(
-                      children: [
-                        Padding(
-                            padding: EdgeInsets.only(left: 8, right: 4),
-                            child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        darkTheme.colorScheme.surfaceDim,
-                                    foregroundColor:
-                                        darkTheme.textTheme.bodyMedium!.color),
-                                onPressed: () {},
-                                child: const Text("EDIT"))),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 8, bottom: 4),
-                            child: Text(
-                              '${tops[index].antraege[index2].title}',
-                              style: darkTheme.textTheme.bodyMedium!
-                                  .copyWith(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ));
-                }));
-          })
-        });
+    futureTops.then((tops) => {_contents = fetchTops(tops)});
 
     futureAntraege = Antrag.fetchAntraege();
-    futureAntraege.then((antraege) => {
-          _contentsAntraege = ListView.builder(
-              itemCount: antraege.length,
-              itemBuilder: (context, index) {
-                Color itemColor = index % 2 == 0
-                    ? darkTheme.colorScheme.primary.withOpacity(0.5)
-                    : darkTheme.colorScheme.secondary.withOpacity(0.5);
-                return Container(
-                  color: itemColor,
-                  height: 50,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Draggable<DragAndDropItem>(
-                          onDragStarted: () {
-                            //get index of dragged
-                            dragedIndex = index;
-                          },
-                          data: DragAndDropItem(
-                              child: Container(
-                            height: 50,
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 8, bottom: 4),
-                                    child: Text(
-                                      antraege[index].title,
-                                      style: darkTheme.textTheme.bodyMedium!
-                                          .copyWith(
-                                              fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )),
-                          feedback: Text(antraege[index].title,
-                              style: darkTheme.textTheme.bodyMedium!
-                                  .copyWith(fontWeight: FontWeight.bold)),
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 8, bottom: 4),
-                            child: Text(
-                              antraege[index].title,
-                              style: darkTheme.textTheme.bodyMedium!
-                                  .copyWith(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              })
-        });
+    futureAntraege
+        .then((antraege) => {_contentsAntraege = fetchAntraege(antraege)});
   }
 
   @override
@@ -242,8 +118,8 @@ class _SitzungsViewState extends State<SitzungView> {
                                         ),
                                       ],
                                     ),
-                                    listInnerDecoration: BoxDecoration(
-                                      borderRadius: const BorderRadius.all(
+                                    listInnerDecoration: const BoxDecoration(
+                                      borderRadius: BorderRadius.all(
                                           Radius.circular(8.0)),
                                     ),
                                     lastItemTargetHeight: 8,
@@ -368,59 +244,19 @@ class _SitzungsViewState extends State<SitzungView> {
           "Content-Type": "application/json; charset=UTF-8"
         },
         body: jsonEncode({
-          "kind": "$dropdownValue",
-          "name": "$text",
+          "kind": dropdownValue,
+          "name": text,
         }));
 
     setState(() {
       futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
-      futureTops.then((tops) => {
-            _contents = List.generate(tops.length, (index) {
-              return DragAndDropList(
-                header: Column(children: <Widget>[
-                  Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8, bottom: 4),
-                        child: Text(
-                          'Top ${index + 2}: ${tops[index].name}',
-                          style: darkTheme.textTheme.bodyMedium!
-                              .copyWith(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-                ]),
-                children: <DragAndDropItem>[
-                  for (var antrag in tops[index].antraege)
-                    DragAndDropItem(
-                      child: Container(
-                        height: 50,
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 8, bottom: 4),
-                                child: Text(
-                                  antrag.title,
-                                  style: darkTheme.textTheme.bodyMedium!
-                                      .copyWith(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                ],
-              );
-            })
-          });
+      futureTops.then((tops) => {_contents = fetchTops(tops)});
     });
   }
 
   showCreateTop() {
+    nameController.text = "";
+    dropdownValue = "normal";
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => StatefulBuilder(
@@ -489,6 +325,91 @@ class _SitzungsViewState extends State<SitzungView> {
                       onPressed: () {
                         Navigator.pop(context);
                         addTop(dropdownValue, nameController.text);
+                      },
+                      child: const Text('Save'),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  showEditTop(UuidValue uuid, String name, TopKind kind) {
+    nameController.text = name;
+    dropdownValue = kind.name;
+    print("name: $name, kind: $kind");
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) => Dialog(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                const SizedBox(
+                  height: 10,
+                ),
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  const Text("Name"),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 300,
+                    child: TextField(
+                      controller: nameController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Name',
+                      ),
+                    ),
+                  ),
+                ]),
+                const SizedBox(height: 20),
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  const Text('Kind'),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 300,
+                    child: DropdownButton<String>(
+                      value: dropdownValue,
+                      items: <String>[
+                        'normal',
+                        'regularia',
+                        'bericht',
+                        'verschiedenes'
+                      ].map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          dropdownValue = value!;
+                        });
+                      },
+                    ),
+                  ),
+                ]),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('Close'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        editTop(dropdownValue, nameController.text);
                       },
                       child: const Text('Save'),
                     ),
@@ -599,62 +520,15 @@ class _SitzungsViewState extends State<SitzungView> {
           "Content-Type": "application/json; charset=UTF-8"
         },
         body: jsonEncode({
-          "titel": "${titleController.text}",
-          "begründung": "${begruendungController.text}",
-          "antragstext": "${antragstextController.text}",
+          "titel": titleController.text,
+          "begründung": begruendungController.text,
+          "antragstext": antragstextController.text,
           "antragssteller": ["72c4eed3-4142-4aa7-8eaa-9af01486a559"]
         }));
     setState(() {
       futureAntraege = Antrag.fetchAntraege();
-      futureAntraege.then((antraege) => {
-            _contentsAntraege = ListView.builder(
-                itemCount: antraege.length,
-                itemBuilder: (context, index) {
-                  return Container(
-                    height: 50,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Draggable<DragAndDropItem>(
-                            data: DragAndDropItem(
-                                child: Container(
-                              height: 50,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 8, bottom: 4),
-                                      child: Text(
-                                        antraege[index].title,
-                                        style: darkTheme.textTheme.bodyMedium!
-                                            .copyWith(
-                                                fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )),
-                            feedback: Text(antraege[index].title,
-                                style: darkTheme.textTheme.bodyMedium!
-                                    .copyWith(fontWeight: FontWeight.bold)),
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 8, bottom: 4),
-                              child: Text(
-                                antraege[index].title,
-                                style: darkTheme.textTheme.bodyMedium!
-                                    .copyWith(fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                })
-          });
+      futureAntraege
+          .then((antraege) => {_contentsAntraege = fetchAntraege(antraege)});
     });
   }
 
@@ -669,5 +543,145 @@ class _SitzungsViewState extends State<SitzungView> {
             "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/$top/assoc/"),
         headers: {"Authorization": "Bearer $token"},
         body: jsonEncode({"antrag_id": "$antragId"}));
+  }
+
+  List<DragAndDropList> fetchTops(List<TopWithAntraege> tops) {
+    return List.generate(tops.length, (index) {
+      return DragAndDropList(
+          decoration: BoxDecoration(
+            color: darkTheme.colorScheme.surfaceDim,
+          ),
+          header: Column(
+            children: <Widget>[
+              Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8, left: 8, bottom: 2),
+                    child: Text(
+                      'Top ${index + 2}: ${tops[index].name}',
+                      style: darkTheme.textTheme.bodyMedium!
+                          .copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Padding(
+                      padding: const EdgeInsets.only(top: 8, left: 8, right: 4),
+                      child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: darkTheme.colorScheme.secondary
+                                  .withOpacity(0.5),
+                              foregroundColor:
+                                  darkTheme.textTheme.bodyMedium!.color),
+                          onPressed: () => showEditTop(tops[index].id,
+                              tops[index].name, tops[index].kind),
+                          child: const Text("EDIT"))),
+                ],
+              ),
+            ],
+          ),
+          children: List.generate(tops[index].antraege.length, (index2) {
+            Color itemColor = index2 % 2 == 0
+                ? darkTheme.colorScheme.primary.withOpacity(0.5)
+                : darkTheme.colorScheme.secondary.withOpacity(0.5);
+            return DragAndDropItem(
+                child: Container(
+              color: itemColor,
+              height: 50,
+              margin: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                children: [
+                  Padding(
+                      padding: const EdgeInsets.only(left: 8, right: 4),
+                      child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: darkTheme.colorScheme.surfaceDim,
+                              foregroundColor:
+                                  darkTheme.textTheme.bodyMedium!.color),
+                          onPressed: () {},
+                          child: const Text("EDIT"))),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8, bottom: 4),
+                      child: Text(
+                        tops[index].antraege[index2].title,
+                        style: darkTheme.textTheme.bodyMedium!
+                            .copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ));
+          }));
+    });
+  }
+
+  fetchAntraege(List<Antrag> antraege) {
+    return ListView.builder(
+        itemCount: antraege.length,
+        itemBuilder: (context, index) {
+          Color itemColor = index % 2 == 0
+              ? darkTheme.colorScheme.primary.withOpacity(0.5)
+              : darkTheme.colorScheme.secondary.withOpacity(0.5);
+          return Container(
+            color: itemColor,
+            height: 50,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Draggable<DragAndDropItem>(
+                    onDragStarted: () {
+                      //get index of dragged
+                      dragedIndex = index;
+                    },
+                    data: DragAndDropItem(
+                        child: Container(
+                      height: 50,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 8, bottom: 4),
+                              child: Text(
+                                antraege[index].title,
+                                style: darkTheme.textTheme.bodyMedium!
+                                    .copyWith(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )),
+                    feedback: Text(antraege[index].title,
+                        style: darkTheme.textTheme.bodyMedium!
+                            .copyWith(fontWeight: FontWeight.bold)),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8, bottom: 4),
+                      child: Text(
+                        antraege[index].title,
+                        style: darkTheme.textTheme.bodyMedium!
+                            .copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
+  Future<void> editTop(String dropdownValue, String text) async {
+    final token = await OAuth.getToken(context);
+    await http.patch(
+        Uri.parse("https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/"),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json; charset=UTF-8"
+        },
+        body: jsonEncode({
+          "kind": dropdownValue,
+          "name": text,
+        }));
   }
 }

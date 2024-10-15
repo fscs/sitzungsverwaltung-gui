@@ -44,14 +44,14 @@ class _MainPageState extends State<MainPage> {
   var date = DateTime.now();
   String dropdownValue = "normal";
   final ThemeData darkTheme = ThemeData(
-      colorScheme: ColorScheme.dark(
+      colorScheme: const ColorScheme.dark(
           primary: Color.fromRGBO(119, 119, 119, 1),
           secondary: Color.fromRGBO(85, 85, 85, 1),
           surface: Color.fromRGBO(50, 50, 50, 1),
           surfaceDim: Color.fromRGBO(40, 40, 40, 1)),
-      textTheme: TextTheme(bodyMedium: TextStyle(color: Colors.white)),
+      textTheme: const TextTheme(bodyMedium: TextStyle(color: Colors.white)),
       buttonTheme:
-          ButtonThemeData(buttonColor: Color.fromRGBO(11, 80, 181, 1)));
+          const ButtonThemeData(buttonColor: Color.fromRGBO(11, 80, 181, 1)));
 
   @override
   void initState() {
@@ -83,7 +83,7 @@ class _MainPageState extends State<MainPage> {
                       mainAxisSize: MainAxisSize.max,
                       children: [
                         Padding(
-                            padding: EdgeInsets.only(left: 8, right: 4),
+                            padding: const EdgeInsets.only(left: 8, right: 4),
                             child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                     backgroundColor:
@@ -98,7 +98,7 @@ class _MainPageState extends State<MainPage> {
                               padding:
                                   const EdgeInsets.only(left: 8, bottom: 4),
                               child: Text(
-                                '${sitzungen[index].kind.name}',
+                                sitzungen[index].kind.name,
                                 style: darkTheme.textTheme.bodyMedium!
                                     .copyWith(fontWeight: FontWeight.bold),
                               ),
@@ -110,7 +110,9 @@ class _MainPageState extends State<MainPage> {
                             child: Text(
                               style: darkTheme.textTheme.bodyMedium!
                                   .copyWith(fontWeight: FontWeight.bold),
-                              '${DateFormat("HH:mm").format((tz.TZDateTime.from(sitzungen[index].datetime, tz.getLocation("Europe/Berlin"))))}',
+                              DateFormat("HH:mm").format((tz.TZDateTime.from(
+                                  sitzungen[index].datetime,
+                                  tz.getLocation("Europe/Berlin")))),
                             ),
                           ),
                         ),
@@ -121,7 +123,9 @@ class _MainPageState extends State<MainPage> {
                             child: Text(
                               style: darkTheme.textTheme.bodyMedium!
                                   .copyWith(fontWeight: FontWeight.bold),
-                              '${DateFormat("dd.MM.yyyy").format((tz.TZDateTime.from(sitzungen[index].datetime, tz.getLocation("Europe/Berlin"))))}',
+                              DateFormat("dd.MM.yyyy").format(
+                                  (tz.TZDateTime.from(sitzungen[index].datetime,
+                                      tz.getLocation("Europe/Berlin")))),
                             ),
                           ),
                         ),
@@ -131,7 +135,7 @@ class _MainPageState extends State<MainPage> {
                             child: Text(
                               style: darkTheme.textTheme.bodyMedium!
                                   .copyWith(fontWeight: FontWeight.bold),
-                              '${sitzungen[index].location}',
+                              sitzungen[index].location,
                             ),
                           ),
                         ),
@@ -154,8 +158,6 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    final weite = MediaQuery.of(context).size.width;
-
     date = DateTime.now();
     date = DateTime.now();
     dropdownValue = "normal";
@@ -168,11 +170,11 @@ class _MainPageState extends State<MainPage> {
           title: Row(children: [
             const Text('Sitzungen FS Informatik'),
             Padding(
-                padding: EdgeInsets.only(left: 8),
+                padding: const EdgeInsets.only(left: 8),
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       foregroundColor: darkTheme.textTheme.bodyMedium!.color,
-                      backgroundColor: Color.fromRGBO(11, 80, 181, 1)),
+                      backgroundColor: const Color.fromRGBO(11, 80, 181, 1)),
                   child: const Text('+', style: TextStyle(fontSize: 20)),
                   onPressed: () => showDialog<String>(
                     context: context,
@@ -240,7 +242,7 @@ class _MainPageState extends State<MainPage> {
                                                   }),
                                       child: Text(DateFormat('dd.MM.yyyy')
                                           .format(date))),
-                                  SizedBox(width: 10),
+                                  const SizedBox(width: 10),
                                   const Text("Time"),
                                   const SizedBox(width: 10),
                                   ElevatedButton(
@@ -317,13 +319,14 @@ class _MainPageState extends State<MainPage> {
         ),
         body: Container(
             color: darkTheme.colorScheme.surface,
-            child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: weite * 0.2),
+            alignment: Alignment.center,
+            child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1200),
                 child: StreamBuilder<List<Sitzung>>(
                     stream: futureSitzung.asStream(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState != ConnectionState.done) {
-                        return Text("Reloading");
+                        return const Text("Reloading");
                       }
                       if (snapshot.hasData) {
                         return ListView(
@@ -349,9 +352,9 @@ class _MainPageState extends State<MainPage> {
           'Authorization': 'Bearer $token',
         },
         body: jsonEncode({
-          "kind": dropdownValue,
-          "location": text,
-          "datetime": date.toUtc().toIso8601String()
+          "kind": "$dropdownValue",
+          "location": "$text",
+          "datetime": "${date.toUtc().toIso8601String()}"
         }));
 
     setState(() {
@@ -368,7 +371,7 @@ class _MainPageState extends State<MainPage> {
                               builder: (context) =>
                                   SitzungView(sitzungen[index].id)));
                     },
-                    child: Container(
+                    child: SizedBox(
                       height: 50,
                       child: Row(
                         mainAxisSize: MainAxisSize.max,
@@ -378,14 +381,17 @@ class _MainPageState extends State<MainPage> {
                               padding:
                                   const EdgeInsets.only(left: 8, bottom: 4),
                               child: Text(
-                                '${DateFormat("dd.MM.yyyy HH:mm").format((tz.TZDateTime.from(sitzungen[index].datetime, tz.getLocation("Europe/Berlin"))))}',
+                                DateFormat("dd.MM.yyyy HH:mm").format(
+                                    (tz.TZDateTime.from(
+                                        sitzungen[index].datetime,
+                                        tz.getLocation("Europe/Berlin")))),
                                 style: darkTheme.textTheme.bodyMedium!
                                     .copyWith(fontWeight: FontWeight.bold),
                               ),
                             ),
                           ),
                           Padding(
-                            padding: EdgeInsets.only(right: 8, bottom: 4),
+                            padding: const EdgeInsets.only(right: 8, bottom: 4),
                             child: Text(
                               '>',
                               style: darkTheme.textTheme.bodyMedium!
