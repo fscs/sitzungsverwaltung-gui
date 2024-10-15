@@ -243,7 +243,6 @@ class _SitzungsViewState extends State<SitzungView> {
           },
           body: jsonEncode({"weight": top.weight}));
     }
-
     setState(() {
       futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
       futureTops.then((tops) => {_contents = fetchTops(tops)});
