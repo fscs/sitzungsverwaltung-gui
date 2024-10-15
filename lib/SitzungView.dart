@@ -341,7 +341,6 @@ class _SitzungsViewState extends State<SitzungView> {
   showEditTop(UuidValue uuid, String name, TopKind kind) {
     nameController.text = name;
     dropdownValue = kind.name;
-    print("name: $name, kind: $kind");
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => StatefulBuilder(
@@ -409,7 +408,7 @@ class _SitzungsViewState extends State<SitzungView> {
                     TextButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        editTop(dropdownValue, nameController.text);
+                        editTop(uuid, dropdownValue, nameController.text);
                       },
                       child: const Text('Save'),
                     ),
@@ -671,10 +670,11 @@ class _SitzungsViewState extends State<SitzungView> {
         });
   }
 
-  Future<void> editTop(String dropdownValue, String text) async {
+  Future<void> editTop(
+      UuidValue topid, String dropdownValue, String text) async {
     final token = await OAuth.getToken(context);
     await http.patch(
-        Uri.parse("https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/"),
+        Uri.parse("https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/$topid/"),
         headers: {
           "Authorization": "Bearer $token",
           "Content-Type": "application/json; charset=UTF-8"
@@ -683,5 +683,9 @@ class _SitzungsViewState extends State<SitzungView> {
           "kind": dropdownValue,
           "name": text,
         }));
+    setState(() {
+      futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
+      futureTops.then((tops) => {_contents = fetchTops(tops)});
+    });
   }
 }
