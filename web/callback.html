@@ -10,7 +10,7 @@
             if (window.opener && window.opener !== window) { //Used when working as a popup. Uses post message to respond to the parent window                
                 var parent = window.opener ?? window.parent;
                 parent.postMessage(location.href, "*");
-                winsow.close();
+                window.close();
             } else { //Used for redirect loop functionality.                
                 //Get the original page destination                
                 const destination = sessionStorage.getItem(AUTH_DESTINATION_KEY || "/");
