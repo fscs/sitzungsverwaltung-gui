@@ -33,6 +33,11 @@ class Sitzung {
     if (response.statusCode == 200) {
       var list = json.decode(response.body) as List;
 
+      list.sort((a, b) {
+        return DateTime.parse(b['datetime'])
+            .compareTo(DateTime.parse(a['datetime']));
+      });
+
       List<Sitzung> sitzungen = list.map((i) => Sitzung.fromJson(i)).toList();
 
       return sitzungen;

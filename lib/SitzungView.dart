@@ -59,12 +59,14 @@ class _SitzungsViewState extends State<SitzungView> {
 
   @override
   Widget build(BuildContext context) {
+    bool isScreenWide = MediaQuery.sizeOf(context).width >= 600;
+
     return Scaffold(
         appBar: AppBar(
             backgroundColor: darkTheme.colorScheme.surfaceDim,
             foregroundColor: darkTheme.textTheme.bodyMedium!.color,
             title: Row(children: [
-              const Text('Sitzung View'),
+              isScreenWide ? const Text('Sitzung View') : const Text(""),
               const SizedBox(width: 20),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
@@ -105,8 +107,10 @@ class _SitzungsViewState extends State<SitzungView> {
                             return Center(
                                 child: Text('Error: ${secondSnapshot.error}'));
                           } else {
-                            return Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                            return Flex(
+                                direction: isScreenWide
+                                    ? Axis.horizontal
+                                    : Axis.vertical,
                                 children: [
                                   Expanded(
                                       child: DragAndDropLists(
@@ -155,7 +159,12 @@ class _SitzungsViewState extends State<SitzungView> {
                                       ),
                                     ),
                                   )),
-                                  Expanded(child: _contentsAntraege)
+                                  Expanded(
+                                      child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 10, right: 10, top: 10),
+                                    child: _contentsAntraege,
+                                  ))
                                 ]);
                           }
                         });
@@ -668,6 +677,7 @@ class _SitzungsViewState extends State<SitzungView> {
   }
 
   fetchAntraege(List<Antrag> antraege) {
+    bool isScreenWide = MediaQuery.sizeOf(context).width >= 600;
     return ListView.builder(
         itemCount: antraege.length,
         itemBuilder: (context, index) {
@@ -680,60 +690,129 @@ class _SitzungsViewState extends State<SitzungView> {
             child: Row(
               children: [
                 Expanded(
-                  child: Draggable<DragAndDropItem>(
-                    onDragStarted: () {
-                      //get index of dragged
-                      dragedIndex = index;
-                    },
-                    data: DragAndDropItem(
-                        child: Container(
-                      height: 50,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 8, bottom: 4),
-                              child: Text(
-                                antraege[index].title,
-                                style: darkTheme.textTheme.bodyMedium!
-                                    .copyWith(fontWeight: FontWeight.bold),
+                  child: isScreenWide
+                      ? Draggable<DragAndDropItem>(
+                          onDragStarted: () {
+                            //get index of dragged
+                            dragedIndex = index;
+                          },
+                          data: DragAndDropItem(
+                              child: Container(
+                            height: 50,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 8, bottom: 4),
+                                    child: Text(
+                                      antraege[index].title,
+                                      style: darkTheme.textTheme.bodyMedium!
+                                          .copyWith(
+                                              fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )),
+                          feedback: Text(antraege[index].title,
+                              style: darkTheme.textTheme.bodyMedium!
+                                  .copyWith(fontWeight: FontWeight.bold)),
+                          child: Row(children: [
+                            Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 8, right: 4),
+                                child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            darkTheme.colorScheme.surfaceDim,
+                                        foregroundColor: darkTheme
+                                            .textTheme.bodyMedium!.color),
+                                    onPressed: () => showEditAntrag(
+                                        antraege[index].id,
+                                        antraege[index].title,
+                                        antraege[index].begruendung,
+                                        antraege[index].antragstext,
+                                        UuidValue.fromString(""),
+                                        "antraege"),
+                                    child: const Text("EDIT"))),
+                            Expanded(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 8, bottom: 4),
+                                child: Text(
+                                  antraege[index].title,
+                                  style: darkTheme.textTheme.bodyMedium!
+                                      .copyWith(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            )
+                          ]),
+                        )
+                      : LongPressDraggable<DragAndDropItem>(
+                          onDragStarted: () {
+                            //get index of dragged
+                            dragedIndex = index;
+                          },
+                          data: DragAndDropItem(
+                              child: Container(
+                            height: 50,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 8, bottom: 4),
+                                    child: Text(
+                                      antraege[index].title,
+                                      style: darkTheme.textTheme.bodyMedium!
+                                          .copyWith(
+                                              fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )),
+                          feedback: Text(
+                            antraege[index].title,
+                            style: darkTheme.textTheme.bodyMedium!.copyWith(
+                                fontWeight: FontWeight.bold, fontSize: 20),
+                            textAlign: TextAlign.center,
+                          ),
+                          child: Row(children: [
+                            Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 8, right: 4),
+                                child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            darkTheme.colorScheme.surfaceDim,
+                                        foregroundColor: darkTheme
+                                            .textTheme.bodyMedium!.color),
+                                    onPressed: () => showEditAntrag(
+                                        antraege[index].id,
+                                        antraege[index].title,
+                                        antraege[index].begruendung,
+                                        antraege[index].antragstext,
+                                        UuidValue.fromString(""),
+                                        "antraege"),
+                                    child: const Text("EDIT"))),
+                            Expanded(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 8, bottom: 4),
+                                child: Text(
+                                  antraege[index].title,
+                                  style: darkTheme.textTheme.bodyMedium!
+                                      .copyWith(fontWeight: FontWeight.bold),
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    )),
-                    feedback: Text(antraege[index].title,
-                        style: darkTheme.textTheme.bodyMedium!
-                            .copyWith(fontWeight: FontWeight.bold)),
-                    child: Row(children: [
-                      Padding(
-                          padding: const EdgeInsets.only(left: 8, right: 4),
-                          child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      darkTheme.colorScheme.surfaceDim,
-                                  foregroundColor:
-                                      darkTheme.textTheme.bodyMedium!.color),
-                              onPressed: () => showEditAntrag(
-                                  antraege[index].id,
-                                  antraege[index].title,
-                                  antraege[index].begruendung,
-                                  antraege[index].antragstext,
-                                  UuidValue.fromString(""),
-                                  "antraege"),
-                              child: const Text("EDIT"))),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8, bottom: 4),
-                        child: Text(
-                          antraege[index].title,
-                          style: darkTheme.textTheme.bodyMedium!
-                              .copyWith(fontWeight: FontWeight.bold),
+                          ]),
                         ),
-                      )
-                    ]),
-                  ),
                 ),
               ],
             ),
