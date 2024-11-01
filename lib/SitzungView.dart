@@ -269,6 +269,7 @@ class _SitzungsViewState extends State<SitzungView> {
         body: jsonEncode({
           "kind": dropdownValue,
           "name": text,
+          "inhalt": "",
         }));
 
     setState(() {
