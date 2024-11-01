@@ -1,0 +1,21 @@
+default:
+  tags:
+    - nix
+  before_script: |
+    mkdir -p ~/.config/nix
+    echo 'experimental-features = nix-command flakes' > ~/.config/nix/nix.conf
+
+flake-check:
+  stage: build
+  script: |
+    nix flake check
+
+deploy:
+  stage: deploy
+  only:
+    - main
+  variables:
+    CI_NIX_UPDATE_INPUT: sitzungsverwaltung
+  trigger:
+    project: fscs/teenix
+    strategy: depend

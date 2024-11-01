@@ -48,7 +48,11 @@
             dart pub global activate protoc_plugin
           '';
         };
-        packages.default = nixpkgs.legacyPackages.${system}.callPackage ./default.nix { };
+
+        packages.default = pkgs.callPackage ./default.nix { };
+
+        checks.build = self.packages.${system}.default;
+        
       });
 }
 
