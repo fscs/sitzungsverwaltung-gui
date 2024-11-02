@@ -502,6 +502,7 @@ class _SitzungsViewState extends State<SitzungView> {
                     width: 300,
                     child: TextField(
                       controller: begruendungController,
+                      maxLines: 6,
                       style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
@@ -520,6 +521,7 @@ class _SitzungsViewState extends State<SitzungView> {
                     width: 300,
                     child: TextField(
                       controller: antragstextController,
+                      maxLines: 6,
                       style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
@@ -909,6 +911,7 @@ class _SitzungsViewState extends State<SitzungView> {
                     child: TextField(
                       controller: begruendungController,
                       style: const TextStyle(color: Colors.white),
+                      maxLines: 6,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Begeündung',
@@ -927,6 +930,7 @@ class _SitzungsViewState extends State<SitzungView> {
                     child: TextField(
                       controller: antragstextController,
                       style: const TextStyle(color: Colors.white),
+                      maxLines: 6,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Antragstext',
