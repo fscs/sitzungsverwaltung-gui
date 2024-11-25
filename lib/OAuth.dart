@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/widgets.dart';
 import 'package:openidconnect/openidconnect.dart';
 import 'dart:html';
@@ -66,7 +68,8 @@ class OAuth {
     );
 
     document.cookie = "refresh_token=${response!.refreshToken}; path=/";
+    document.cookie = "access_token=${response.accessToken}; path=/";
 
-    return response!.accessToken;
+    return response.accessToken;
   }
 }

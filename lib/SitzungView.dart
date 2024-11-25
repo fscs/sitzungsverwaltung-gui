@@ -566,16 +566,18 @@ class _SitzungsViewState extends State<SitzungView> {
       TextEditingController begruendungController,
       TextEditingController antragstextController) async {
     final token = await OAuth.getToken(context);
+    var username = await getUsernameFromAccessToken();
+    final antragsteller = await getIDByUsername(username);
     await http.post(Uri.parse("https://fscs.hhu.de/api/anträge/"),
         headers: {
-          "Authorization": "Bearer $token",
+          "Authorization": "Beaeer $token",
           "Content-Type": "application/json; charset=UTF-8"
         },
         body: jsonEncode({
           "titel": titleController.text,
           "begründung": begruendungController.text,
           "antragstext": antragstextController.text,
-          "antragssteller": ["72c4eed3-4142-4aa7-8eaa-9af01486a559"]
+          "antragssteller": [antragsteller.toString()]
         }));
     setState(() {
       futureAntraege = Antrag.fetchAntraege();
@@ -1021,5 +1023,57 @@ class _SitzungsViewState extends State<SitzungView> {
       futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
       futureTops.then((tops) => {_contents = fetchTops(tops)});
     });
+  }
+
+  Future<UuidValue> getIDByUsername(username) async {
+    final token = await OAuth.getToken(context);
+    var response = await http.get(
+        Uri.parse("https://fscs.hhu.de/api/persons/by-username/$username"),
+        headers: {"Authorization": "Bearer $token"});
+    if (response.statusCode == 200) {
+      return UuidValue.fromString(jsonDecode(response.body)["id"]);
+    } else {
+      throw Exception('Failed to load ID');
+    }
+  }
+
+  Future<String> getUsernameFromAccessToken() async {
+    final token = await OAuth.getToken(context);
+    var jwt = parseJwt(token);
+    return jwt["preferred_username"];
+  }
+
+  Map<String, dynamic> parseJwt(String token) {
+    final parts = token.split('.');
+    if (parts.length != 3) {
+      throw Exception('invalid token');
+    }
+
+    final payload = _decodeBase64(parts[1]);
+    final payloadMap = json.decode(payload);
+    if (payloadMap is! Map<String, dynamic>) {
+      throw Exception('invalid payload');
+    }
+
+    return payloadMap;
+  }
+
+  String _decodeBase64(String str) {
+    String output = str.replaceAll('-', '+').replaceAll('_', '/');
+
+    switch (output.length % 4) {
+      case 0:
+        break;
+      case 2:
+        output += '==';
+        break;
+      case 3:
+        output += '=';
+        break;
+      default:
+        throw Exception('Illegal base64url string!"');
+    }
+
+    return utf8.decode(base64Url.decode(output));
   }
 }
