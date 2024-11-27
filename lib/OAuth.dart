@@ -68,7 +68,7 @@ class OAuth {
     );
 
     document.cookie = "refresh_token=${response!.refreshToken}; path=/";
-    document.cookie = "access_token=${response.accessToken}; path=/";
+    document.cookie = "accesstoken=${response.accessToken}; path=/";
 
     return response.accessToken;
   }
