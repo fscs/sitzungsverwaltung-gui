@@ -570,7 +570,7 @@ class _SitzungsViewState extends State<SitzungView> {
     final antragsteller = await getIDByUsername(username);
     await http.post(Uri.parse("https://fscs.hhu.de/api/anträge/"),
         headers: {
-          "Authorization": "Beaeer $token",
+          "Authorization": "Bearer $token",
           "Content-Type": "application/json; charset=UTF-8"
         },
         body: jsonEncode({
