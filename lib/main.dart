@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:sitzungsverwaltung_gui/Admin/main.dart';
+import 'package:sitzungsverwaltung_gui/OAuth.dart';
 import 'package:sitzungsverwaltung_gui/Sitzung.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
@@ -75,12 +77,24 @@ class _MainPageState extends State<MainPage> {
               padding: const EdgeInsets.only(left: 8),
               child: ElevatedButton(
                 child: const Text('Admin', style: TextStyle(fontSize: 20)),
-                onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const AdminMainPage(
-                              title: 'Admin',
-                            ))),
+                onPressed: () async {
+                  var token = await OAuth.getToken(context);
+                  Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+
+                  if (decodedToken["groups"].contains("FS_Rat_Informatik")) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const AdminMainPage(
+                                  title: 'Admin',
+                                )));
+                  } else {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) => const AlertDialog(
+                            title: Text("fehler"), content: Text("blub")));
+                  }
+                },
               ))
         ]),
       ),
