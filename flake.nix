@@ -17,6 +17,7 @@
       system:
       let
         pkgs = import nixpkgs { inherit system; };
+        lib = nixpkgs.lib;
       in
       {
         devShell = pkgs.mkShell {
@@ -44,7 +45,7 @@
 
           # emulator related: vulkan-loader and libGL shared libs are necessary for hardware decoding
           LD_LIBRARY_PATH = "/run/opengl-driver/lib:/run/opengl-driver-32/lib";
-          CMAKE_PREFIX_PATH = "${pkgs.lib.makeLibraryPath [
+          CMAKE_PREFIX_PATH = "${lib.makeLibraryPath [
             pkgs.libsecret.dev
             pkgs.gtk3.dev
           ]}";
@@ -52,17 +53,26 @@
           # Globally installed packages, which are installed through `dart pub global activate package_name`,
           # are located in the `$PUB_CACHE/bin` directory.
           shellHook = ''
-            if [ -z "$PUB_CACHE" ]; then
-              export PATH="$PATH:$HOME/.pub-cache/bin"
-            else
+            if [ -v PUB_CACHE ] && [ -n "$PUB_CACHE" ]; then
               export PATH="$PATH:$PUB_CACHE/bin"
+            else
+              export PATH="$PATH:$HOME/.pub-cache/bin"
             fi
 
             dart pub global activate protoc_plugin
           '';
         };
 
-        packages.default = pkgs.callPackage ./default.nix { };
+        packages = {
+          default = pkgs.callPackage ./default.nix { };
+          run = pkgs.writers.writeBashBin "run-flutter-app" ''
+            ${lib.getExe' pkgs.flutter "flutter"} run -d chrome --web-browser-flag "--disable-web-security" --web-port=8000
+          '';
+        };
+
+        apps.default = flake-utils.lib.mkApp {
+          drv = self.packages.${system}.run;
+        };
 
         checks.build = self.packages.${system}.default;
       }
