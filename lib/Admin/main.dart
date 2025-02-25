@@ -5,6 +5,7 @@ import 'package:sitzungsverwaltung_gui/OAuth.dart';
 import 'package:sitzungsverwaltung_gui/Sitzung.dart';
 import 'package:sitzungsverwaltung_gui/Admin/SitzungView.dart';
 import 'package:intl/intl.dart';
+import 'package:sitzungsverwaltung_gui/lib.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:http/http.dart' as http;
@@ -43,15 +44,6 @@ class AdminMainPageState extends State<AdminMainPage> {
   final locationController = TextEditingController();
   var date = DateTime.now();
   String dropdownValue = "normal";
-  final ThemeData darkTheme = ThemeData(
-      colorScheme: const ColorScheme.dark(
-          primary: Color.fromRGBO(119, 119, 119, 1),
-          secondary: Color.fromRGBO(85, 85, 85, 1),
-          surface: Color.fromRGBO(50, 50, 50, 1),
-          surfaceDim: Color.fromRGBO(40, 40, 40, 1)),
-      textTheme: const TextTheme(bodyMedium: TextStyle(color: Colors.white)),
-      buttonTheme:
-          const ButtonThemeData(buttonColor: Color.fromRGBO(11, 80, 181, 1)));
 
   @override
   void initState() {
@@ -79,15 +71,16 @@ class AdminMainPageState extends State<AdminMainPage> {
 
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: darkTheme.colorScheme.surfaceDim,
-          foregroundColor: darkTheme.textTheme.bodyMedium!.color,
+          backgroundColor: Lib.darkTheme.colorScheme.surfaceDim,
+          foregroundColor: Lib.darkTheme.textTheme.bodyMedium!.color,
           title: Row(children: [
             const Text('Sitzungen FS Informatik'),
             Padding(
                 padding: const EdgeInsets.only(left: 8),
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                      foregroundColor: darkTheme.textTheme.bodyMedium!.color,
+                      foregroundColor:
+                          Lib.darkTheme.textTheme.bodyMedium!.color,
                       backgroundColor: const Color.fromRGBO(11, 80, 181, 1)),
                   child: const Text('+', style: TextStyle(fontSize: 20)),
                   onPressed: () => showAddSitzungDialog(),
@@ -95,7 +88,7 @@ class AdminMainPageState extends State<AdminMainPage> {
           ]),
         ),
         body: Container(
-            color: darkTheme.colorScheme.surface,
+            color: Lib.darkTheme.colorScheme.surface,
             alignment: Alignment.center,
             child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 1200),
@@ -151,7 +144,7 @@ class AdminMainPageState extends State<AdminMainPage> {
       context: context,
       builder: (BuildContext context) => StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) => Dialog(
-          backgroundColor: darkTheme.colorScheme.surface,
+          backgroundColor: Lib.darkTheme.colorScheme.surface,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -167,7 +160,7 @@ class AdminMainPageState extends State<AdminMainPage> {
                   SizedBox(
                     width: 300,
                     child: DropdownButton<String>(
-                      dropdownColor: darkTheme.colorScheme.surface,
+                      dropdownColor: Lib.darkTheme.colorScheme.surface,
                       value: dropdownValue,
                       icon: const Icon(
                         Icons.arrow_drop_down,
@@ -298,8 +291,8 @@ class AdminMainPageState extends State<AdminMainPage> {
   List<Widget> fetchSitzungen(List<Sitzung> sitzungen) {
     return List.generate(sitzungen.length, (index) {
       Color itemColor = index % 2 == 0
-          ? darkTheme.colorScheme.primary.withOpacity(0.5)
-          : darkTheme.colorScheme.secondary.withOpacity(0.5);
+          ? Lib.darkTheme.colorScheme.primary.withOpacity(0.5)
+          : Lib.darkTheme.colorScheme.secondary.withOpacity(0.5);
 
       return Column(
         children: <Widget>[
@@ -320,9 +313,10 @@ class AdminMainPageState extends State<AdminMainPage> {
                       padding: const EdgeInsets.only(left: 8, right: 4),
                       child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: darkTheme.colorScheme.surfaceDim,
+                              backgroundColor:
+                                  Lib.darkTheme.colorScheme.surfaceDim,
                               foregroundColor:
-                                  darkTheme.textTheme.bodyMedium!.color),
+                                  Lib.darkTheme.textTheme.bodyMedium!.color),
                           onPressed: () => showEditSitzungDialog(
                               sitzungen[index].id,
                               sitzungen[index].datetime,
@@ -335,7 +329,7 @@ class AdminMainPageState extends State<AdminMainPage> {
                         padding: const EdgeInsets.only(left: 8, bottom: 4),
                         child: Text(
                           sitzungen[index].kind.name,
-                          style: darkTheme.textTheme.bodyMedium!
+                          style: Lib.darkTheme.textTheme.bodyMedium!
                               .copyWith(fontWeight: FontWeight.bold),
                         ),
                       )),
@@ -344,7 +338,7 @@ class AdminMainPageState extends State<AdminMainPage> {
                     child: Padding(
                       padding: const EdgeInsets.only(left: 8, bottom: 4),
                       child: Text(
-                        style: darkTheme.textTheme.bodyMedium!
+                        style: Lib.darkTheme.textTheme.bodyMedium!
                             .copyWith(fontWeight: FontWeight.bold),
                         DateFormat("HH:mm").format((tz.TZDateTime.from(
                             sitzungen[index].datetime,
@@ -357,7 +351,7 @@ class AdminMainPageState extends State<AdminMainPage> {
                     child: Padding(
                       padding: const EdgeInsets.only(left: 8, bottom: 4),
                       child: Text(
-                        style: darkTheme.textTheme.bodyMedium!
+                        style: Lib.darkTheme.textTheme.bodyMedium!
                             .copyWith(fontWeight: FontWeight.bold),
                         DateFormat("dd.MM.yyyy").format((tz.TZDateTime.from(
                             sitzungen[index].datetime,
@@ -369,7 +363,7 @@ class AdminMainPageState extends State<AdminMainPage> {
                     child: Padding(
                       padding: const EdgeInsets.only(left: 8, bottom: 4),
                       child: Text(
-                        style: darkTheme.textTheme.bodyMedium!
+                        style: Lib.darkTheme.textTheme.bodyMedium!
                             .copyWith(fontWeight: FontWeight.bold),
                         sitzungen[index].location,
                       ),
@@ -414,7 +408,7 @@ class AdminMainPageState extends State<AdminMainPage> {
       context: context,
       builder: (BuildContext context) => StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) => Dialog(
-          backgroundColor: darkTheme.colorScheme.surface,
+          backgroundColor: Lib.darkTheme.colorScheme.surface,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -430,7 +424,7 @@ class AdminMainPageState extends State<AdminMainPage> {
                   SizedBox(
                     width: 300,
                     child: DropdownButton<String>(
-                      dropdownColor: darkTheme.colorScheme.surface,
+                      dropdownColor: Lib.darkTheme.colorScheme.surface,
                       value: dropdownValue,
                       icon: const Icon(
                         Icons.arrow_drop_down,

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:sitzungsverwaltung_gui/Admin/SitzungView.dart';
 import 'package:sitzungsverwaltung_gui/Admin/main.dart';
 import 'package:sitzungsverwaltung_gui/OAuth.dart';
 import 'package:sitzungsverwaltung_gui/Sitzung.dart';
+import 'package:sitzungsverwaltung_gui/lib.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
 void main() {
@@ -38,15 +40,6 @@ class _MainPageState extends State<MainPage> {
   final locationController = TextEditingController();
   var date = DateTime.now();
   String dropdownValue = "normal";
-  final ThemeData darkTheme = ThemeData(
-      colorScheme: const ColorScheme.dark(
-          primary: Color.fromRGBO(119, 119, 119, 1),
-          secondary: Color.fromRGBO(85, 85, 85, 1),
-          surface: Color.fromRGBO(50, 50, 50, 1),
-          surfaceDim: Color.fromRGBO(40, 40, 40, 1)),
-      textTheme: const TextTheme(bodyMedium: TextStyle(color: Colors.white)),
-      buttonTheme:
-          const ButtonThemeData(buttonColor: Color.fromRGBO(11, 80, 181, 1)));
 
   @override
   void initState() {
@@ -69,8 +62,8 @@ class _MainPageState extends State<MainPage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: darkTheme.colorScheme.surfaceDim,
-        foregroundColor: darkTheme.textTheme.bodyMedium!.color,
+        backgroundColor: Lib.darkTheme.colorScheme.surfaceDim,
+        foregroundColor: Lib.darkTheme.textTheme.bodyMedium!.color,
         title: Row(children: [
           const Text('Sitzungen FS Informatik'),
           Padding(
@@ -97,6 +90,16 @@ class _MainPageState extends State<MainPage> {
                 },
               ))
         ]),
+      ),
+      body: Container(
+        color: Lib.darkTheme.colorScheme.surface,
+        child: Center(
+          child: ElevatedButton(
+              onPressed: () {
+                Lib.showCreateAntrag(context);
+              },
+              child: Text("Create Antrag")),
+        ),
       ),
     );
   }
