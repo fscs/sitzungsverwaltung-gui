@@ -8,12 +8,14 @@ class Antrag {
   final String begruendung;
   final UuidValue id;
   final String title;
+  final List<dynamic> creators;
 
   const Antrag({
     required this.id,
     required this.title,
     required this.antragstext,
     required this.begruendung,
+    required this.creators,
   });
 
   factory Antrag.fromJson(Map<String, dynamic> json) {
@@ -22,6 +24,7 @@ class Antrag {
       title: json['titel'] as String,
       antragstext: json['antragstext'] as String,
       begruendung: json['begründung'] as String,
+      creators: json['creators'] as List<dynamic>,
     );
   }
 

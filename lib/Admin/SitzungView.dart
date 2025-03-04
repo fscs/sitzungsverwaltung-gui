@@ -559,6 +559,32 @@ class SitzungsViewState extends State<SitzungView> {
                       ),
                     ),
                   ),
+                  SizedBox(
+                    width: 300,
+                    child: Padding(
+                        padding: const EdgeInsets.only(left: 8, bottom: 4),
+                        child: Row(
+                          children:
+                              tops[index].antraege[index2].creators.map((text) {
+                            return FutureBuilder(
+                                future: getPersonByUUID(text.toString()),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const CircularProgressIndicator();
+                                  } else if (snapshot.hasError) {
+                                    return Text('Error: ${snapshot.error}');
+                                  } else {
+                                    return Text(
+                                      snapshot.data.toString(),
+                                      style:
+                                          Lib.darkTheme.textTheme.bodyMedium!,
+                                    );
+                                  }
+                                });
+                          }).toList(),
+                        )),
+                  ),
                 ],
               ),
             ));
@@ -577,119 +603,19 @@ class SitzungsViewState extends State<SitzungView> {
           return Container(
             color: itemColor,
             height: 50,
-            child: Row(
-              children: [
-                Expanded(
-                  child: isScreenWide
-                      ? Draggable<DragAndDropItem>(
-                          onDragStarted: () {
-                            //get index of dragged
-                            dragedIndex = index;
-                          },
-                          data: DragAndDropItem(
-                              child: Container(
-                            height: 50,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 8, bottom: 4),
-                                    child: Text(
-                                      antraege[index].title,
-                                      style: Lib.darkTheme.textTheme.bodyMedium!
-                                          .copyWith(
-                                              fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )),
-                          feedback: Text(antraege[index].title,
-                              style: Lib.darkTheme.textTheme.bodyMedium!
-                                  .copyWith(fontWeight: FontWeight.bold)),
-                          child: Row(children: [
-                            Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 8, right: 4),
-                                child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                        backgroundColor: Lib
-                                            .darkTheme.colorScheme.surfaceDim,
-                                        foregroundColor: Lib.darkTheme.textTheme
-                                            .bodyMedium!.color),
-                                    onPressed: () => showEditAntrag(
-                                        antraege[index].id,
-                                        antraege[index].title,
-                                        antraege[index].begruendung,
-                                        antraege[index].antragstext,
-                                        UuidValue.fromString(""),
-                                        "antraege"),
-                                    child: const Text("EDIT"))),
-                            Expanded(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 8, bottom: 4),
-                                child: Text(
-                                  antraege[index].title,
-                                  style: Lib.darkTheme.textTheme.bodyMedium!
-                                      .copyWith(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            )
-                          ]),
-                        )
-                      : LongPressDraggable<DragAndDropItem>(
-                          onDragStarted: () {
-                            //get index of dragged
-                            dragedIndex = index;
-                          },
-                          data: DragAndDropItem(
-                              child: Container(
-                            height: 50,
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 8, bottom: 4),
-                                    child: Text(
-                                      antraege[index].title,
-                                      style: Lib.darkTheme.textTheme.bodyMedium!
-                                          .copyWith(
-                                              fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )),
-                          feedback: Text(
-                            antraege[index].title,
-                            style: Lib.darkTheme.textTheme.bodyMedium!.copyWith(
-                                fontWeight: FontWeight.bold, fontSize: 20),
-                            textAlign: TextAlign.center,
-                          ),
-                          child: Row(children: [
-                            Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 8, right: 4),
-                                child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                        backgroundColor: Lib
-                                            .darkTheme.colorScheme.surfaceDim,
-                                        foregroundColor: Lib.darkTheme.textTheme
-                                            .bodyMedium!.color),
-                                    onPressed: () => showEditAntrag(
-                                        antraege[index].id,
-                                        antraege[index].title,
-                                        antraege[index].begruendung,
-                                        antraege[index].antragstext,
-                                        UuidValue.fromString(""),
-                                        "antraege"),
-                                    child: const Text("EDIT"))),
+            child: Expanded(
+              child: isScreenWide
+                  ? Draggable<DragAndDropItem>(
+                      onDragStarted: () {
+                        //get index of dragged
+                        dragedIndex = index;
+                      },
+                      data: DragAndDropItem(
+                          child: Container(
+                        height: 50,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
                             Expanded(
                               child: Padding(
                                 padding:
@@ -701,10 +627,154 @@ class SitzungsViewState extends State<SitzungView> {
                                 ),
                               ),
                             ),
-                          ]),
+                          ],
                         ),
-                ),
-              ],
+                      )),
+                      feedback: Text(antraege[index].title,
+                          style: Lib.darkTheme.textTheme.bodyMedium!
+                              .copyWith(fontWeight: FontWeight.bold)),
+                      child: Row(children: [
+                        Padding(
+                            padding: const EdgeInsets.only(left: 8, right: 4),
+                            child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        Lib.darkTheme.colorScheme.surfaceDim,
+                                    foregroundColor: Lib
+                                        .darkTheme.textTheme.bodyMedium!.color),
+                                onPressed: () => showEditAntrag(
+                                    antraege[index].id,
+                                    antraege[index].title,
+                                    antraege[index].begruendung,
+                                    antraege[index].antragstext,
+                                    UuidValue.fromString(""),
+                                    "antraege"),
+                                child: const Text("EDIT"))),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8, bottom: 4),
+                            child: Text(
+                              antraege[index].title,
+                              style: Lib.darkTheme.textTheme.bodyMedium!
+                                  .copyWith(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 300,
+                          child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 8, bottom: 4),
+                              child: Row(
+                                children: antraege[index].creators.map((text) {
+                                  return FutureBuilder(
+                                      future: getPersonByUUID(text.toString()),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return const CircularProgressIndicator();
+                                        } else if (snapshot.hasError) {
+                                          return Text(
+                                              'Error: ${snapshot.error}');
+                                        } else {
+                                          return Text(
+                                            snapshot.data.toString(),
+                                            style: Lib.darkTheme.textTheme
+                                                .bodyMedium!,
+                                          );
+                                        }
+                                      });
+                                }).toList(),
+                              )),
+                        ),
+                      ]),
+                    )
+                  : LongPressDraggable<DragAndDropItem>(
+                      onDragStarted: () {
+                        //get index of dragged
+                        dragedIndex = index;
+                      },
+                      data: DragAndDropItem(
+                          child: Container(
+                        height: 50,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 8, bottom: 4),
+                                child: Text(
+                                  antraege[index].title,
+                                  style: Lib.darkTheme.textTheme.bodyMedium!
+                                      .copyWith(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )),
+                      feedback: Text(
+                        antraege[index].title,
+                        style: Lib.darkTheme.textTheme.bodyMedium!.copyWith(
+                            fontWeight: FontWeight.bold, fontSize: 20),
+                        textAlign: TextAlign.center,
+                      ),
+                      child: Row(children: [
+                        Padding(
+                            padding: const EdgeInsets.only(left: 8, right: 4),
+                            child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        Lib.darkTheme.colorScheme.surfaceDim,
+                                    foregroundColor: Lib
+                                        .darkTheme.textTheme.bodyMedium!.color),
+                                onPressed: () => showEditAntrag(
+                                    antraege[index].id,
+                                    antraege[index].title,
+                                    antraege[index].begruendung,
+                                    antraege[index].antragstext,
+                                    UuidValue.fromString(""),
+                                    "antraege"),
+                                child: const Text("EDIT"))),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8, bottom: 4),
+                            child: Text(
+                              antraege[index].title,
+                              style: Lib.darkTheme.textTheme.bodyMedium!
+                                  .copyWith(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 300,
+                          child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 8, bottom: 4),
+                              child: Row(
+                                children: antraege[index].creators.map((text) {
+                                  return FutureBuilder(
+                                      future: getPersonByUUID(text.toString()),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return const CircularProgressIndicator();
+                                        } else if (snapshot.hasError) {
+                                          return Text(
+                                              'Error: ${snapshot.error}');
+                                        } else {
+                                          return Text(
+                                            snapshot.data.toString(),
+                                            style: Lib.darkTheme.textTheme
+                                                .bodyMedium!,
+                                          );
+                                        }
+                                      });
+                                }).toList(),
+                              )),
+                        ),
+                      ]),
+                    ),
             ),
           );
         });
@@ -960,5 +1030,19 @@ class SitzungsViewState extends State<SitzungView> {
     }
 
     return utf8.decode(base64Url.decode(output));
+  }
+
+  Future<String> getPersonByUUID(String UUID) async {
+    final token = await OAuth.getToken(context);
+    var response = await http.get(
+        Uri.parse("https://fscs.hhu.de/api/persons/$UUID"),
+        headers: {"Authorization": "Bearer $token"});
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body)["first_name"] +
+          " " +
+          jsonDecode(response.body)["last_name"];
+    } else {
+      throw Exception('Failed to load Name');
+    }
   }
 }

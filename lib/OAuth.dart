@@ -23,7 +23,8 @@ class OAuth {
             "grant_type": "refresh_token",
             "refresh_token": token,
             "client_id": "cZgfgWqx4h1Mn0jhLgUem6vS6m3zFvPwtIcOSyDg",
-            "client_secret": "blQAuvzKYitqWmroablLj2ksi6epvoho7Pn8Z46nuNUhki2cBv4iSoOBIa0or3N4Nh6Hka1brqaZwinY56wePnYn7A08p0DFkFXKRlMItvRslNvzeNRLVUumNaEHJElS"
+            "client_secret":
+                "blQAuvzKYitqWmroablLj2ksi6epvoho7Pn8Z46nuNUhki2cBv4iSoOBIa0or3N4Nh6Hka1brqaZwinY56wePnYn7A08p0DFkFXKRlMItvRslNvzeNRLVUumNaEHJElS"
           });
       final json = res.body;
       if (res.statusCode != 200) {
@@ -42,7 +43,8 @@ class OAuth {
       title: "SSO Login",
       request: await InteractiveAuthorizationRequest.create(
           clientId: "cZgfgWqx4h1Mn0jhLgUem6vS6m3zFvPwtIcOSyDg",
-          clientSecret: "blQAuvzKYitqWmroablLj2ksi6epvoho7Pn8Z46nuNUhki2cBv4iSoOBIa0or3N4Nh6Hka1brqaZwinY56wePnYn7A08p0DFkFXKRlMItvRslNvzeNRLVUumNaEHJElS",
+          clientSecret:
+              "blQAuvzKYitqWmroablLj2ksi6epvoho7Pn8Z46nuNUhki2cBv4iSoOBIa0or3N4Nh6Hka1brqaZwinY56wePnYn7A08p0DFkFXKRlMItvRslNvzeNRLVUumNaEHJElS",
           redirectUrl: "${Uri.base.origin}/callback.html",
           scopes: ["openid", "profile", "offline_access"],
           configuration: OpenIdConfiguration(
