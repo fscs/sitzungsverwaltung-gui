@@ -6,6 +6,34 @@ import 'dart:html';
 import 'package:http/http.dart' as http;
 
 class OAuth {
+  static Future<String> refreshToken() async {
+    final cookie = document.cookie!;
+
+    final token = cookie
+        .split(";")
+        .map((e) => e.trim())
+        .where((e) => e.startsWith("refresh_token="))
+        .map((e) => e.substring("refresh_token=".length))
+        .firstWhere((e) => true, orElse: () => "");
+
+    var res = await http
+        .post(Uri.parse("https://auth.inphima.de/application/o/token/"), body: {
+      "grant_type": "refresh_token",
+      "refresh_token": token,
+      "client_id": "cZgfgWqx4h1Mn0jhLgUem6vS6m3zFvPwtIcOSyDg",
+      "client_secret":
+          "blQAuvzKYitqWmroablLj2ksi6epvoho7Pn8Z46nuNUhki2cBv4iSoOBIa0or3N4Nh6Hka1brqaZwinY56wePnYn7A08p0DFkFXKRlMItvRslNvzeNRLVUumNaEHJElS"
+    });
+    final json = res.body;
+    if (res.statusCode != 200) {
+      document.cookie = "refresh_token=; path=/";
+    }
+    final accessToken = json.split('"access_token": "')[1].split('"')[0];
+    document.cookie =
+        "refresh_token=${json.split('"refresh_token": "')[1].split('"')[0]}; path=/";
+    return accessToken;
+  }
+
   static Future<String> getToken(BuildContext context) async {
     final cookie = document.cookie!;
 
@@ -23,7 +51,8 @@ class OAuth {
             "grant_type": "refresh_token",
             "refresh_token": token,
             "client_id": "cZgfgWqx4h1Mn0jhLgUem6vS6m3zFvPwtIcOSyDg",
-            "client_secret": "blQAuvzKYitqWmroablLj2ksi6epvoho7Pn8Z46nuNUhki2cBv4iSoOBIa0or3N4Nh6Hka1brqaZwinY56wePnYn7A08p0DFkFXKRlMItvRslNvzeNRLVUumNaEHJElS"
+            "client_secret":
+                "blQAuvzKYitqWmroablLj2ksi6epvoho7Pn8Z46nuNUhki2cBv4iSoOBIa0or3N4Nh6Hka1brqaZwinY56wePnYn7A08p0DFkFXKRlMItvRslNvzeNRLVUumNaEHJElS"
           });
       final json = res.body;
       if (res.statusCode != 200) {
@@ -42,7 +71,8 @@ class OAuth {
       title: "SSO Login",
       request: await InteractiveAuthorizationRequest.create(
           clientId: "cZgfgWqx4h1Mn0jhLgUem6vS6m3zFvPwtIcOSyDg",
-          clientSecret: "blQAuvzKYitqWmroablLj2ksi6epvoho7Pn8Z46nuNUhki2cBv4iSoOBIa0or3N4Nh6Hka1brqaZwinY56wePnYn7A08p0DFkFXKRlMItvRslNvzeNRLVUumNaEHJElS",
+          clientSecret:
+              "blQAuvzKYitqWmroablLj2ksi6epvoho7Pn8Z46nuNUhki2cBv4iSoOBIa0or3N4Nh6Hka1brqaZwinY56wePnYn7A08p0DFkFXKRlMItvRslNvzeNRLVUumNaEHJElS",
           redirectUrl: "${Uri.base.origin}/callback.html",
           scopes: ["openid", "profile", "offline_access"],
           configuration: OpenIdConfiguration(
@@ -69,7 +99,7 @@ class OAuth {
     );
 
     document.cookie = "refresh_token=${response!.refreshToken}; path=/";
-    document.cookie = "accesstoken=${response.accessToken}; path=/";
+    document.cookie = "access_token=${response.accessToken}; path=/";
 
     return response.accessToken;
   }

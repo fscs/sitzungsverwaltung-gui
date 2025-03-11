@@ -9,6 +9,7 @@ import 'package:sitzungsverwaltung_gui/Antrag.dart';
 import 'package:sitzungsverwaltung_gui/OAuth.dart';
 import 'package:sitzungsverwaltung_gui/Sitzung.dart';
 import 'package:sitzungsverwaltung_gui/Top.dart';
+import 'package:sitzungsverwaltung_gui/lib.dart';
 import 'package:uuid/uuid_value.dart';
 
 class SitzungView extends StatefulWidget {
@@ -16,12 +17,12 @@ class SitzungView extends StatefulWidget {
   const SitzungView(this.id, {super.key});
 
   @override
-  State<SitzungView> createState() => _SitzungsViewState(id);
+  State<SitzungView> createState() => SitzungsViewState(id);
 }
 
-class _SitzungsViewState extends State<SitzungView> {
+class SitzungsViewState extends State<SitzungView> {
   final UuidValue sitzungsid;
-  _SitzungsViewState(this.sitzungsid);
+  SitzungsViewState(this.sitzungsid);
   late List<DragAndDropList> _contents;
   late Widget _contentsAntraege;
   late Future<List<TopWithAntraege>> futureTops;
@@ -35,15 +36,7 @@ class _SitzungsViewState extends State<SitzungView> {
   final antragstextController = TextEditingController();
   var dragedIndex = -1;
 
-  final ThemeData darkTheme = ThemeData(
-      colorScheme: const ColorScheme.dark(
-          primary: Color.fromRGBO(119, 119, 119, 1),
-          secondary: Color.fromRGBO(85, 85, 85, 1),
-          surface: Color.fromRGBO(50, 50, 50, 1),
-          surfaceDim: Color.fromRGBO(40, 40, 40, 1)),
-      textTheme: const TextTheme(bodyMedium: TextStyle(color: Colors.white)),
-      buttonTheme:
-          const ButtonThemeData(buttonColor: Color.fromRGBO(11, 80, 181, 1)));
+  bool showAllAntraege = false;
 
   @override
   void initState() {
@@ -52,7 +45,7 @@ class _SitzungsViewState extends State<SitzungView> {
     futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
     futureTops.then((tops) => {_contents = fetchTops(tops)});
 
-    futureAntraege = Antrag.fetchAntraege();
+    futureAntraege = Antrag.fetchAntraege(showAllAntraege);
     futureAntraege
         .then((antraege) => {_contentsAntraege = fetchAntraege(antraege)});
   }
@@ -63,31 +56,22 @@ class _SitzungsViewState extends State<SitzungView> {
 
     return Scaffold(
         appBar: AppBar(
-            backgroundColor: darkTheme.colorScheme.surfaceDim,
-            foregroundColor: darkTheme.textTheme.bodyMedium!.color,
-            title: Row(children: [
-              isScreenWide ? const Text('Sitzung View') : const Text(""),
-              const SizedBox(width: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    foregroundColor: darkTheme.textTheme.bodyMedium!.color,
-                    backgroundColor: const Color.fromRGBO(11, 80, 181, 1)),
-                onPressed: () => showCreateTop(),
-                child: const Text('Create Top'),
-              ),
-            ]),
-            actions: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    foregroundColor: darkTheme.textTheme.bodyMedium!.color,
-                    backgroundColor: const Color.fromRGBO(11, 80, 181, 1)),
-                onPressed: () => showCreateAntrag(),
-                child: const Text('Create Antrag'),
-              ),
-              const SizedBox(width: 20),
-            ]),
+          backgroundColor: Lib.darkTheme.colorScheme.surfaceDim,
+          foregroundColor: Lib.darkTheme.textTheme.bodyMedium!.color,
+          title: Row(children: [
+            isScreenWide ? const Text('Sitzung View') : const Text(""),
+            const SizedBox(width: 20),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  foregroundColor: Lib.darkTheme.textTheme.bodyMedium!.color,
+                  backgroundColor: const Color.fromRGBO(11, 80, 181, 1)),
+              onPressed: () => showCreateTop(),
+              child: const Text('Top Erstellen'),
+            ),
+          ]),
+        ),
         body: Container(
-            color: darkTheme.colorScheme.surface,
+            color: Lib.darkTheme.colorScheme.surface,
             child: StreamBuilder<List<TopWithAntraege>>(
                 stream: futureTops.asStream(),
                 builder: (context, snapshot) {
@@ -161,10 +145,78 @@ class _SitzungsViewState extends State<SitzungView> {
                                   )),
                                   Expanded(
                                       child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 10, right: 10, top: 10),
-                                    child: _contentsAntraege,
-                                  ))
+                                          padding: const EdgeInsets.only(
+                                              left: 10, right: 10, top: 10),
+                                          child: Column(children: [
+                                            ListView(
+                                              shrinkWrap: true,
+                                              children: [
+                                                ListTile(
+                                                  title: Text(
+                                                    'Nicht Zugewisen',
+                                                    style: TextStyle(
+                                                        color: Lib
+                                                            .darkTheme
+                                                            .textTheme
+                                                            .bodyMedium!
+                                                            .color),
+                                                  ),
+                                                  leading: Radio<bool>(
+                                                    value: true,
+                                                    groupValue: showAllAntraege,
+                                                    onChanged: (bool? value) {
+                                                      setState(() {
+                                                        showAllAntraege =
+                                                            value!;
+                                                        futureAntraege = Antrag
+                                                            .fetchAntraege(
+                                                                showAllAntraege);
+                                                        futureAntraege.then(
+                                                            (antraege) => {
+                                                                  _contentsAntraege =
+                                                                      fetchAntraege(
+                                                                          antraege)
+                                                                });
+                                                      });
+                                                    },
+                                                  ),
+                                                ),
+                                                ListTile(
+                                                  title: Text(
+                                                    'Zugewisen',
+                                                    style: TextStyle(
+                                                        color: Lib
+                                                            .darkTheme
+                                                            .textTheme
+                                                            .bodyMedium!
+                                                            .color),
+                                                  ),
+                                                  leading: Radio<bool>(
+                                                    value: false,
+                                                    groupValue: showAllAntraege,
+                                                    onChanged: (bool? value) {
+                                                      setState(() {
+                                                        showAllAntraege =
+                                                            value!;
+                                                        futureAntraege = Antrag
+                                                            .fetchAntraege(
+                                                                showAllAntraege);
+                                                        futureAntraege.then(
+                                                            (antraege) => {
+                                                                  _contentsAntraege =
+                                                                      fetchAntraege(
+                                                                          antraege)
+                                                                });
+                                                      });
+                                                    },
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Expanded(
+                                              child: _contentsAntraege,
+                                            )
+                                          ])))
                                 ]);
                           }
                         });
@@ -285,7 +337,7 @@ class _SitzungsViewState extends State<SitzungView> {
       context: context,
       builder: (BuildContext context) => StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) => Dialog(
-          backgroundColor: darkTheme.colorScheme.surface,
+          backgroundColor: Lib.darkTheme.colorScheme.surface,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -318,6 +370,7 @@ class _SitzungsViewState extends State<SitzungView> {
                   SizedBox(
                     width: 300,
                     child: DropdownButton<String>(
+                      dropdownColor: Lib.darkTheme.colorScheme.surface,
                       value: dropdownValue,
                       items: <String>[
                         'normal',
@@ -375,7 +428,7 @@ class _SitzungsViewState extends State<SitzungView> {
       context: context,
       builder: (BuildContext context) => StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) => Dialog(
-          backgroundColor: darkTheme.colorScheme.surface,
+          backgroundColor: Lib.darkTheme.colorScheme.surface,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -458,109 +511,6 @@ class _SitzungsViewState extends State<SitzungView> {
     );
   }
 
-  showCreateAntrag() {
-    titleController.text = "";
-    begruendungController.text = "";
-    antragstextController.text = "";
-
-    showDialog<String>(
-      context: context,
-      builder: (BuildContext context) => StatefulBuilder(
-        builder: (BuildContext context, StateSetter setState) => Dialog(
-          backgroundColor: darkTheme.colorScheme.surface,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                const SizedBox(
-                  height: 10,
-                ),
-                Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Text("Titel", style: TextStyle(color: Colors.white)),
-                  const SizedBox(width: 10),
-                  SizedBox(
-                    width: 300,
-                    child: TextField(
-                      controller: titleController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Titel',
-                        labelStyle: TextStyle(color: Colors.white70),
-                      ),
-                    ),
-                  ),
-                ]),
-                const SizedBox(height: 20),
-                Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Text("Begründung",
-                      style: TextStyle(color: Colors.white)),
-                  const SizedBox(width: 10),
-                  SizedBox(
-                    width: 300,
-                    child: TextField(
-                      controller: begruendungController,
-                      maxLines: 6,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Begeündung',
-                        labelStyle: TextStyle(color: Colors.white70),
-                      ),
-                    ),
-                  ),
-                ]),
-                const SizedBox(height: 20),
-                Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Text("Antragstext",
-                      style: TextStyle(color: Colors.white)),
-                  const SizedBox(width: 10),
-                  SizedBox(
-                    width: 300,
-                    child: TextField(
-                      controller: antragstextController,
-                      maxLines: 6,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Antragstext',
-                        labelStyle: TextStyle(color: Colors.white70),
-                      ),
-                    ),
-                  ),
-                ]),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Text('Close',
-                          style: TextStyle(color: Colors.white)),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        addAntrag(titleController, begruendungController,
-                            antragstextController);
-                      },
-                      child: const Text('Save',
-                          style: TextStyle(color: Colors.white)),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Future<void> addAntrag(
       TextEditingController titleController,
       TextEditingController begruendungController,
@@ -580,7 +530,7 @@ class _SitzungsViewState extends State<SitzungView> {
           "antragssteller": [antragsteller.toString()]
         }));
     setState(() {
-      futureAntraege = Antrag.fetchAntraege();
+      futureAntraege = Antrag.fetchAntraege(showAllAntraege);
       futureAntraege
           .then((antraege) => {_contentsAntraege = fetchAntraege(antraege)});
     });
@@ -588,7 +538,7 @@ class _SitzungsViewState extends State<SitzungView> {
 
   Future<void> addAntragToTop(int listIndex) async {
     var tops = await Sitzung.fetchTopWithAntraege(sitzungsid);
-    var antrag = await Antrag.fetchAntraege();
+    var antrag = await Antrag.fetchAntraege(showAllAntraege);
     var antragId = antrag[dragedIndex].id;
     var top = tops[listIndex].id;
     final token = await OAuth.getToken(context);
@@ -601,6 +551,10 @@ class _SitzungsViewState extends State<SitzungView> {
     setState(() {
       futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
       futureTops.then((tops) => {_contents = fetchTops(tops)});
+
+      futureAntraege = Antrag.fetchAntraege(showAllAntraege);
+      futureAntraege
+          .then((antraege) => {_contentsAntraege = fetchAntraege(antraege)});
     });
   }
 
@@ -608,7 +562,7 @@ class _SitzungsViewState extends State<SitzungView> {
     return List.generate(tops.length, (index) {
       return DragAndDropList(
           decoration: BoxDecoration(
-            color: darkTheme.colorScheme.surfaceDim,
+            color: Lib.darkTheme.colorScheme.surfaceDim,
           ),
           header: Column(
             children: <Widget>[
@@ -618,7 +572,7 @@ class _SitzungsViewState extends State<SitzungView> {
                     padding: const EdgeInsets.only(top: 8, left: 8, bottom: 2),
                     child: Text(
                       'Top ${index + 2}: ${tops[index].name}',
-                      style: darkTheme.textTheme.bodyMedium!
+                      style: Lib.darkTheme.textTheme.bodyMedium!
                           .copyWith(fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -626,10 +580,11 @@ class _SitzungsViewState extends State<SitzungView> {
                       padding: const EdgeInsets.only(top: 8, left: 8, right: 4),
                       child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: darkTheme.colorScheme.secondary
+                              backgroundColor: Lib
+                                  .darkTheme.colorScheme.secondary
                                   .withOpacity(0.5),
                               foregroundColor:
-                                  darkTheme.textTheme.bodyMedium!.color),
+                                  Lib.darkTheme.textTheme.bodyMedium!.color),
                           onPressed: () => showEditTop(tops[index].id,
                               tops[index].name, tops[index].kind),
                           child: const Text("EDIT"))),
@@ -639,8 +594,8 @@ class _SitzungsViewState extends State<SitzungView> {
           ),
           children: List.generate(tops[index].antraege.length, (index2) {
             Color itemColor = index2 % 2 == 0
-                ? darkTheme.colorScheme.primary.withOpacity(0.5)
-                : darkTheme.colorScheme.secondary.withOpacity(0.5);
+                ? Lib.darkTheme.colorScheme.primary.withOpacity(0.5)
+                : Lib.darkTheme.colorScheme.secondary.withOpacity(0.5);
             return DragAndDropItem(
                 child: Container(
               color: itemColor,
@@ -652,9 +607,10 @@ class _SitzungsViewState extends State<SitzungView> {
                     padding: const EdgeInsets.only(left: 8, right: 4),
                     child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: darkTheme.colorScheme.surfaceDim,
+                            backgroundColor:
+                                Lib.darkTheme.colorScheme.surfaceDim,
                             foregroundColor:
-                                darkTheme.textTheme.bodyMedium!.color),
+                                Lib.darkTheme.textTheme.bodyMedium!.color),
                         onPressed: () => showEditAntrag(
                             tops[index].antraege[index2].id,
                             tops[index].antraege[index2].title,
@@ -669,10 +625,24 @@ class _SitzungsViewState extends State<SitzungView> {
                       padding: const EdgeInsets.only(left: 8, bottom: 4),
                       child: Text(
                         tops[index].antraege[index2].title,
-                        style: darkTheme.textTheme.bodyMedium!
+                        style: Lib.darkTheme.textTheme.bodyMedium!
                             .copyWith(fontWeight: FontWeight.bold),
                       ),
                     ),
+                  ),
+                  SizedBox(
+                    width: 300,
+                    child: Padding(
+                        padding: const EdgeInsets.only(left: 8, bottom: 4),
+                        child: Row(
+                          children:
+                              tops[index].antraege[index2].creators.map((text) {
+                            return Text(text,
+                                style: TextStyle(
+                                    color: Lib.darkTheme.textTheme.bodyMedium!
+                                        .color));
+                          }).toList(),
+                        )),
                   ),
                 ],
               ),
@@ -682,144 +652,164 @@ class _SitzungsViewState extends State<SitzungView> {
   }
 
   fetchAntraege(List<Antrag> antraege) {
+    if (antraege.isEmpty) {
+      return Center(
+          child: Text("Keine Anträge",
+              style: Lib.darkTheme.textTheme.bodyMedium!));
+    }
     bool isScreenWide = MediaQuery.sizeOf(context).width >= 600;
     return ListView.builder(
         itemCount: antraege.length,
         itemBuilder: (context, index) {
           Color itemColor = index % 2 == 0
-              ? darkTheme.colorScheme.primary.withOpacity(0.5)
-              : darkTheme.colorScheme.secondary.withOpacity(0.5);
+              ? Lib.darkTheme.colorScheme.primary.withOpacity(0.5)
+              : Lib.darkTheme.colorScheme.secondary.withOpacity(0.5);
           return Container(
             color: itemColor,
             height: 50,
-            child: Row(
-              children: [
-                Expanded(
-                  child: isScreenWide
-                      ? Draggable<DragAndDropItem>(
-                          onDragStarted: () {
-                            //get index of dragged
-                            dragedIndex = index;
-                          },
-                          data: DragAndDropItem(
-                              child: Container(
-                            height: 50,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 8, bottom: 4),
-                                    child: Text(
-                                      antraege[index].title,
-                                      style: darkTheme.textTheme.bodyMedium!
-                                          .copyWith(
-                                              fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )),
-                          feedback: Text(antraege[index].title,
-                              style: darkTheme.textTheme.bodyMedium!
-                                  .copyWith(fontWeight: FontWeight.bold)),
-                          child: Row(children: [
-                            Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 8, right: 4),
-                                child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            darkTheme.colorScheme.surfaceDim,
-                                        foregroundColor: darkTheme
-                                            .textTheme.bodyMedium!.color),
-                                    onPressed: () => showEditAntrag(
-                                        antraege[index].id,
-                                        antraege[index].title,
-                                        antraege[index].begruendung,
-                                        antraege[index].antragstext,
-                                        UuidValue.fromString(""),
-                                        "antraege"),
-                                    child: const Text("EDIT"))),
+            child: Expanded(
+              child: isScreenWide
+                  ? Draggable<DragAndDropItem>(
+                      onDragStarted: () {
+                        //get index of dragged
+                        dragedIndex = index;
+                      },
+                      data: DragAndDropItem(
+                          child: Container(
+                        height: 50,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
                             Expanded(
                               child: Padding(
                                 padding:
                                     const EdgeInsets.only(left: 8, bottom: 4),
                                 child: Text(
                                   antraege[index].title,
-                                  style: darkTheme.textTheme.bodyMedium!
-                                      .copyWith(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            )
-                          ]),
-                        )
-                      : LongPressDraggable<DragAndDropItem>(
-                          onDragStarted: () {
-                            //get index of dragged
-                            dragedIndex = index;
-                          },
-                          data: DragAndDropItem(
-                              child: Container(
-                            height: 50,
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 8, bottom: 4),
-                                    child: Text(
-                                      antraege[index].title,
-                                      style: darkTheme.textTheme.bodyMedium!
-                                          .copyWith(
-                                              fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )),
-                          feedback: Text(
-                            antraege[index].title,
-                            style: darkTheme.textTheme.bodyMedium!.copyWith(
-                                fontWeight: FontWeight.bold, fontSize: 20),
-                            textAlign: TextAlign.center,
-                          ),
-                          child: Row(children: [
-                            Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 8, right: 4),
-                                child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            darkTheme.colorScheme.surfaceDim,
-                                        foregroundColor: darkTheme
-                                            .textTheme.bodyMedium!.color),
-                                    onPressed: () => showEditAntrag(
-                                        antraege[index].id,
-                                        antraege[index].title,
-                                        antraege[index].begruendung,
-                                        antraege[index].antragstext,
-                                        UuidValue.fromString(""),
-                                        "antraege"),
-                                    child: const Text("EDIT"))),
-                            Expanded(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 8, bottom: 4),
-                                child: Text(
-                                  antraege[index].title,
-                                  style: darkTheme.textTheme.bodyMedium!
+                                  style: Lib.darkTheme.textTheme.bodyMedium!
                                       .copyWith(fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ),
-                          ]),
+                          ],
                         ),
-                ),
-              ],
+                      )),
+                      feedback: Text(antraege[index].title,
+                          style: Lib.darkTheme.textTheme.bodyMedium!
+                              .copyWith(fontWeight: FontWeight.bold)),
+                      child: Row(children: [
+                        Padding(
+                            padding: const EdgeInsets.only(left: 8, right: 4),
+                            child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        Lib.darkTheme.colorScheme.surfaceDim,
+                                    foregroundColor: Lib
+                                        .darkTheme.textTheme.bodyMedium!.color),
+                                onPressed: () => showEditAntrag(
+                                    antraege[index].id,
+                                    antraege[index].title,
+                                    antraege[index].begruendung,
+                                    antraege[index].antragstext,
+                                    UuidValue.fromString(""),
+                                    "antraege"),
+                                child: const Text("EDIT"))),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8, bottom: 4),
+                            child: Text(
+                              antraege[index].title,
+                              style: Lib.darkTheme.textTheme.bodyMedium!
+                                  .copyWith(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 300,
+                          child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 8, bottom: 4),
+                              child: Row(
+                                children: antraege[index].creators.map((text) {
+                                  return Text(text,
+                                      style: TextStyle(
+                                          color: Lib.darkTheme.textTheme
+                                              .bodyMedium!.color));
+                                }).toList(),
+                              )),
+                        ),
+                      ]),
+                    )
+                  : LongPressDraggable<DragAndDropItem>(
+                      onDragStarted: () {
+                        //get index of dragged
+                        dragedIndex = index;
+                      },
+                      data: DragAndDropItem(
+                          child: Container(
+                        height: 50,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 8, bottom: 4),
+                                child: Text(
+                                  antraege[index].title,
+                                  style: Lib.darkTheme.textTheme.bodyMedium!
+                                      .copyWith(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )),
+                      feedback: Text(
+                        antraege[index].title,
+                        style: Lib.darkTheme.textTheme.bodyMedium!.copyWith(
+                            fontWeight: FontWeight.bold, fontSize: 20),
+                        textAlign: TextAlign.center,
+                      ),
+                      child: Row(children: [
+                        Padding(
+                            padding: const EdgeInsets.only(left: 8, right: 4),
+                            child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        Lib.darkTheme.colorScheme.surfaceDim,
+                                    foregroundColor: Lib
+                                        .darkTheme.textTheme.bodyMedium!.color),
+                                onPressed: () => showEditAntrag(
+                                    antraege[index].id,
+                                    antraege[index].title,
+                                    antraege[index].begruendung,
+                                    antraege[index].antragstext,
+                                    UuidValue.fromString(""),
+                                    "antraege"),
+                                child: const Text("EDIT"))),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8, bottom: 4),
+                            child: Text(
+                              antraege[index].title,
+                              style: Lib.darkTheme.textTheme.bodyMedium!
+                                  .copyWith(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 300,
+                          child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 8, bottom: 4),
+                              child: Row(
+                                children: antraege[index].creators.map((text) {
+                                  return Text(text);
+                                }).toList(),
+                              )),
+                        ),
+                      ]),
+                    ),
             ),
           );
         });
@@ -861,7 +851,7 @@ class _SitzungsViewState extends State<SitzungView> {
       futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
       futureTops.then((tops) => {_contents = fetchTops(tops)});
 
-      futureAntraege = Antrag.fetchAntraege();
+      futureAntraege = Antrag.fetchAntraege(showAllAntraege);
       futureAntraege
           .then((antraege) => {_contentsAntraege = fetchAntraege(antraege)});
     });
@@ -877,7 +867,7 @@ class _SitzungsViewState extends State<SitzungView> {
       context: context,
       builder: (BuildContext context) => StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) => Dialog(
-          backgroundColor: darkTheme.colorScheme.surface,
+          backgroundColor: Lib.darkTheme.colorScheme.surface,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -1000,7 +990,7 @@ class _SitzungsViewState extends State<SitzungView> {
     });
 
     setState(() {
-      futureAntraege = Antrag.fetchAntraege();
+      futureAntraege = Antrag.fetchAntraege(showAllAntraege);
       futureAntraege
           .then((antraege) => {_contentsAntraege = fetchAntraege(antraege)});
       futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
