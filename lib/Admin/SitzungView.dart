@@ -36,6 +36,8 @@ class SitzungsViewState extends State<SitzungView> {
   final antragstextController = TextEditingController();
   var dragedIndex = -1;
 
+  bool showAllAntraege = false;
+
   @override
   void initState() {
     super.initState();
@@ -43,7 +45,7 @@ class SitzungsViewState extends State<SitzungView> {
     futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
     futureTops.then((tops) => {_contents = fetchTops(tops)});
 
-    futureAntraege = Antrag.fetchAntraege();
+    futureAntraege = Antrag.fetchAntraege(showAllAntraege);
     futureAntraege
         .then((antraege) => {_contentsAntraege = fetchAntraege(antraege)});
   }
@@ -143,10 +145,64 @@ class SitzungsViewState extends State<SitzungView> {
                                   )),
                                   Expanded(
                                       child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 10, right: 10, top: 10),
-                                    child: _contentsAntraege,
-                                  ))
+                                          padding: const EdgeInsets.only(
+                                              left: 10, right: 10, top: 10),
+                                          child: Column(children: [
+                                            ListView(
+                                              shrinkWrap: true,
+                                              children: [
+                                                ListTile(
+                                                  title: const Text(
+                                                      'Nicht Zugewisen'),
+                                                  leading: Radio<bool>(
+                                                    value: true,
+                                                    groupValue: showAllAntraege,
+                                                    onChanged: (bool? value) {
+                                                      setState(() {
+                                                        showAllAntraege =
+                                                            value!;
+                                                        futureAntraege = Antrag
+                                                            .fetchAntraege(
+                                                                showAllAntraege);
+                                                        futureAntraege.then(
+                                                            (antraege) => {
+                                                                  _contentsAntraege =
+                                                                      fetchAntraege(
+                                                                          antraege)
+                                                                });
+                                                      });
+                                                    },
+                                                  ),
+                                                ),
+                                                ListTile(
+                                                  title:
+                                                      const Text('Zugewisen'),
+                                                  leading: Radio<bool>(
+                                                    value: false,
+                                                    groupValue: showAllAntraege,
+                                                    onChanged: (bool? value) {
+                                                      setState(() {
+                                                        showAllAntraege =
+                                                            value!;
+                                                        futureAntraege = Antrag
+                                                            .fetchAntraege(
+                                                                showAllAntraege);
+                                                        futureAntraege.then(
+                                                            (antraege) => {
+                                                                  _contentsAntraege =
+                                                                      fetchAntraege(
+                                                                          antraege)
+                                                                });
+                                                      });
+                                                    },
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Expanded(
+                                              child: _contentsAntraege,
+                                            )
+                                          ])))
                                 ]);
                           }
                         });
@@ -300,6 +356,7 @@ class SitzungsViewState extends State<SitzungView> {
                   SizedBox(
                     width: 300,
                     child: DropdownButton<String>(
+                      dropdownColor: Lib.darkTheme.colorScheme.surface,
                       value: dropdownValue,
                       items: <String>[
                         'normal',
@@ -459,7 +516,7 @@ class SitzungsViewState extends State<SitzungView> {
           "antragssteller": [antragsteller.toString()]
         }));
     setState(() {
-      futureAntraege = Antrag.fetchAntraege();
+      futureAntraege = Antrag.fetchAntraege(showAllAntraege);
       futureAntraege
           .then((antraege) => {_contentsAntraege = fetchAntraege(antraege)});
     });
@@ -467,7 +524,7 @@ class SitzungsViewState extends State<SitzungView> {
 
   Future<void> addAntragToTop(int listIndex) async {
     var tops = await Sitzung.fetchTopWithAntraege(sitzungsid);
-    var antrag = await Antrag.fetchAntraege();
+    var antrag = await Antrag.fetchAntraege(showAllAntraege);
     var antragId = antrag[dragedIndex].id;
     var top = tops[listIndex].id;
     final token = await OAuth.getToken(context);
@@ -481,7 +538,7 @@ class SitzungsViewState extends State<SitzungView> {
       futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
       futureTops.then((tops) => {_contents = fetchTops(tops)});
 
-      futureAntraege = Antrag.fetchAntraege();
+      futureAntraege = Antrag.fetchAntraege(showAllAntraege);
       futureAntraege
           .then((antraege) => {_contentsAntraege = fetchAntraege(antraege)});
     });
@@ -566,22 +623,7 @@ class SitzungsViewState extends State<SitzungView> {
                         child: Row(
                           children:
                               tops[index].antraege[index2].creators.map((text) {
-                            return FutureBuilder(
-                                future: getPersonByUUID(text.toString()),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return const CircularProgressIndicator();
-                                  } else if (snapshot.hasError) {
-                                    return Text('Error: ${snapshot.error}');
-                                  } else {
-                                    return Text(
-                                      snapshot.data.toString(),
-                                      style:
-                                          Lib.darkTheme.textTheme.bodyMedium!,
-                                    );
-                                  }
-                                });
+                            return Text(text);
                           }).toList(),
                         )),
                   ),
@@ -667,23 +709,7 @@ class SitzungsViewState extends State<SitzungView> {
                                   const EdgeInsets.only(left: 8, bottom: 4),
                               child: Row(
                                 children: antraege[index].creators.map((text) {
-                                  return FutureBuilder(
-                                      future: getPersonByUUID(text.toString()),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.connectionState ==
-                                            ConnectionState.waiting) {
-                                          return const CircularProgressIndicator();
-                                        } else if (snapshot.hasError) {
-                                          return Text(
-                                              'Error: ${snapshot.error}');
-                                        } else {
-                                          return Text(
-                                            snapshot.data.toString(),
-                                            style: Lib.darkTheme.textTheme
-                                                .bodyMedium!,
-                                          );
-                                        }
-                                      });
+                                  return Text(text);
                                 }).toList(),
                               )),
                         ),
@@ -753,23 +779,7 @@ class SitzungsViewState extends State<SitzungView> {
                                   const EdgeInsets.only(left: 8, bottom: 4),
                               child: Row(
                                 children: antraege[index].creators.map((text) {
-                                  return FutureBuilder(
-                                      future: getPersonByUUID(text.toString()),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.connectionState ==
-                                            ConnectionState.waiting) {
-                                          return const CircularProgressIndicator();
-                                        } else if (snapshot.hasError) {
-                                          return Text(
-                                              'Error: ${snapshot.error}');
-                                        } else {
-                                          return Text(
-                                            snapshot.data.toString(),
-                                            style: Lib.darkTheme.textTheme
-                                                .bodyMedium!,
-                                          );
-                                        }
-                                      });
+                                  return Text(text);
                                 }).toList(),
                               )),
                         ),
@@ -816,7 +826,7 @@ class SitzungsViewState extends State<SitzungView> {
       futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
       futureTops.then((tops) => {_contents = fetchTops(tops)});
 
-      futureAntraege = Antrag.fetchAntraege();
+      futureAntraege = Antrag.fetchAntraege(showAllAntraege);
       futureAntraege
           .then((antraege) => {_contentsAntraege = fetchAntraege(antraege)});
     });
@@ -955,7 +965,7 @@ class SitzungsViewState extends State<SitzungView> {
     });
 
     setState(() {
-      futureAntraege = Antrag.fetchAntraege();
+      futureAntraege = Antrag.fetchAntraege(showAllAntraege);
       futureAntraege
           .then((antraege) => {_contentsAntraege = fetchAntraege(antraege)});
       futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
@@ -1030,19 +1040,5 @@ class SitzungsViewState extends State<SitzungView> {
     }
 
     return utf8.decode(base64Url.decode(output));
-  }
-
-  Future<String> getPersonByUUID(String UUID) async {
-    final token = await OAuth.getToken(context);
-    var response = await http.get(
-        Uri.parse("https://fscs.hhu.de/api/persons/$UUID"),
-        headers: {"Authorization": "Bearer $token"});
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body)["first_name"] +
-          " " +
-          jsonDecode(response.body)["last_name"];
-    } else {
-      throw Exception('Failed to load Name');
-    }
   }
 }

@@ -53,8 +53,10 @@ class Sitzung {
     if (response.statusCode == 200) {
       var list = json.decode(utf8.decode(response.bodyBytes))['tops'] as List;
 
-      List<TopWithAntraege> tops =
-          list.map((i) => TopWithAntraege.fromJson(i)).toList();
+      List<TopWithAntraege> tops = [];
+      for (var i in list) {
+        tops.add(await TopWithAntraege.fromJsonAsync(i));
+      }
 
       return tops;
     } else {

@@ -1,4 +1,5 @@
 import 'package:sitzungsverwaltung_gui/Antrag.dart';
+import 'package:sitzungsverwaltung_gui/Person.dart';
 import 'package:uuid/uuid.dart';
 
 class Top {
@@ -50,6 +51,21 @@ class TopWithAntraege {
         weight: json['weight'] as int,
         antraege:
             (json['anträge'] as List).map((i) => Antrag.fromJson(i)).toList());
+  }
+
+  static Future<TopWithAntraege> fromJsonAsync(
+      Map<String, dynamic> json) async {
+    var antraegeList = await Future.wait(
+      (json['anträge'] as List).map((i) => Antrag.fromJsonAsync(i)),
+    );
+
+    return TopWithAntraege(
+        kind: TopKind.values.byName(json['kind']),
+        id: UuidValue.fromString(json['id']),
+        name: json['name'] as String,
+        inhalt: json['inhalt'] as String,
+        weight: json['weight'] as int,
+        antraege: antraegeList);
   }
 }
 
