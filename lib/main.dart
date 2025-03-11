@@ -98,7 +98,7 @@ class _MainPageState extends State<MainPage> {
               onPressed: () {
                 Lib.showCreateAntrag(context);
               },
-              child: Text("Create Antrag")),
+              child: Text("Antrag Einreichen")),
         ),
       ),
     );

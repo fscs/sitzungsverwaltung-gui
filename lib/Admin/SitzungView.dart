@@ -66,7 +66,7 @@ class SitzungsViewState extends State<SitzungView> {
                   foregroundColor: Lib.darkTheme.textTheme.bodyMedium!.color,
                   backgroundColor: const Color.fromRGBO(11, 80, 181, 1)),
               onPressed: () => showCreateTop(),
-              child: const Text('Create Top'),
+              child: const Text('Top Erstellen'),
             ),
           ]),
         ),
@@ -152,8 +152,15 @@ class SitzungsViewState extends State<SitzungView> {
                                               shrinkWrap: true,
                                               children: [
                                                 ListTile(
-                                                  title: const Text(
-                                                      'Nicht Zugewisen'),
+                                                  title: Text(
+                                                    'Nicht Zugewisen',
+                                                    style: TextStyle(
+                                                        color: Lib
+                                                            .darkTheme
+                                                            .textTheme
+                                                            .bodyMedium!
+                                                            .color),
+                                                  ),
                                                   leading: Radio<bool>(
                                                     value: true,
                                                     groupValue: showAllAntraege,
@@ -175,8 +182,15 @@ class SitzungsViewState extends State<SitzungView> {
                                                   ),
                                                 ),
                                                 ListTile(
-                                                  title:
-                                                      const Text('Zugewisen'),
+                                                  title: Text(
+                                                    'Zugewisen',
+                                                    style: TextStyle(
+                                                        color: Lib
+                                                            .darkTheme
+                                                            .textTheme
+                                                            .bodyMedium!
+                                                            .color),
+                                                  ),
                                                   leading: Radio<bool>(
                                                     value: false,
                                                     groupValue: showAllAntraege,
@@ -623,7 +637,10 @@ class SitzungsViewState extends State<SitzungView> {
                         child: Row(
                           children:
                               tops[index].antraege[index2].creators.map((text) {
-                            return Text(text);
+                            return Text(text,
+                                style: TextStyle(
+                                    color: Lib.darkTheme.textTheme.bodyMedium!
+                                        .color));
                           }).toList(),
                         )),
                   ),
@@ -635,6 +652,11 @@ class SitzungsViewState extends State<SitzungView> {
   }
 
   fetchAntraege(List<Antrag> antraege) {
+    if (antraege.isEmpty) {
+      return Center(
+          child: Text("Keine Anträge",
+              style: Lib.darkTheme.textTheme.bodyMedium!));
+    }
     bool isScreenWide = MediaQuery.sizeOf(context).width >= 600;
     return ListView.builder(
         itemCount: antraege.length,
@@ -709,7 +731,10 @@ class SitzungsViewState extends State<SitzungView> {
                                   const EdgeInsets.only(left: 8, bottom: 4),
                               child: Row(
                                 children: antraege[index].creators.map((text) {
-                                  return Text(text);
+                                  return Text(text,
+                                      style: TextStyle(
+                                          color: Lib.darkTheme.textTheme
+                                              .bodyMedium!.color));
                                 }).toList(),
                               )),
                         ),

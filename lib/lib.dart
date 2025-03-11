@@ -112,6 +112,12 @@ class Lib {
                     ),
                     TextButton(
                       onPressed: () async {
+                        if (titleController.text.isEmpty ||
+                            begruendungController.text.isEmpty ||
+                            antragstextController.text.isEmpty) {
+                          html.window.alert("Bitte alle Felder ausfüllen");
+                          return;
+                        }
                         Navigator.pop(context);
                         await addAntrag(titleController, begruendungController,
                             antragstextController, context);

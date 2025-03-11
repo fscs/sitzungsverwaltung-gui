@@ -242,6 +242,7 @@ class AdminMainPageState extends State<AdminMainPage> {
                     width: 300,
                     child: TextField(
                       controller: locationController,
+                      style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Location',
