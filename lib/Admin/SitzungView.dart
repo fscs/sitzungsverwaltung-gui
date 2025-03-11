@@ -153,7 +153,7 @@ class SitzungsViewState extends State<SitzungView> {
                                               children: [
                                                 ListTile(
                                                   title: Text(
-                                                    'Nicht Zugewisen',
+                                                    'Zugewisen',
                                                     style: TextStyle(
                                                         color: Lib
                                                             .darkTheme
@@ -183,7 +183,7 @@ class SitzungsViewState extends State<SitzungView> {
                                                 ),
                                                 ListTile(
                                                   title: Text(
-                                                    'Zugewisen',
+                                                    'Nicht Zugewisen',
                                                     style: TextStyle(
                                                         color: Lib
                                                             .darkTheme
