@@ -8,7 +8,7 @@ import 'package:drag_and_drop_lists/drag_and_drop_lists.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sitzungsverwaltung_gui/Admin/AntragsList.dart';
-import 'package:sitzungsverwaltung_gui/Admin/TopsList.dart';
+import 'package:sitzungsverwaltung_gui/Admin/SitzungView.dart';
 import 'package:sitzungsverwaltung_gui/Antrag.dart';
 import 'package:sitzungsverwaltung_gui/OAuth.dart';
 import 'package:sitzungsverwaltung_gui/Sitzung.dart';
@@ -18,23 +18,22 @@ import 'package:uuid/uuid_value.dart';
 
 final dateFormat = DateFormat('dd.MM.yyyy HH:mm');
 
-class SitzungView extends StatefulWidget {
+class TopListView extends StatefulWidget {
   final Sitzung sitzung;
   final UuidValue id;
-  const SitzungView(this.id, this.sitzung, {super.key});
+  const TopListView(this.id, this.sitzung, {super.key});
 
   @override
-  State<SitzungView> createState() => SitzungsViewState(id, sitzung);
+  State<TopListView> createState() => TopListViewState(id, sitzung);
 }
 
-class SitzungsViewState extends State<SitzungView> {
+class TopListViewState extends State<TopListView> {
   final UuidValue sitzungsid;
   final Sitzung sitzung;
-  SitzungsViewState(this.sitzungsid, this.sitzung);
+  TopListViewState(this.sitzungsid, this.sitzung);
   late List<DragAndDropList> _contents;
   late Widget _contentsAntraege;
   late Future<List<TopWithAntraege>> futureTops;
-  late Future<List<Antrag>> futureAntraege;
 
   final nameController = TextEditingController();
   String dropdownValue = "normal";
@@ -46,10 +45,6 @@ class SitzungsViewState extends State<SitzungView> {
   var dragedIndex = -1;
   late Timer? _debounceTimer;
 
-  bool showAllAntraege = false;
-  static final GlobalKey<AntragsListViewState> antragsListKey =
-      GlobalKey<AntragsListViewState>();
-
   @override
   void initState() {
     super.initState();
@@ -57,9 +52,6 @@ class SitzungsViewState extends State<SitzungView> {
     futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
     futureTops.then((tops) => {_contents = fetchTops(tops)});
 
-    futureAntraege = Antrag.fetchAntraege(showAllAntraege);
-    futureAntraege
-        .then((antraege) => {_contentsAntraege = fetchAntraege(antraege)});
     _debounceTimer = Timer(Duration(milliseconds: 0), () {});
   }
 
@@ -71,37 +63,56 @@ class SitzungsViewState extends State<SitzungView> {
 
   @override
   Widget build(BuildContext context) {
-    bool isScreenWide = MediaQuery.sizeOf(context).width >= 600;
-
-    return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Lib.darkTheme.colorScheme.surfaceDim,
-          foregroundColor: Lib.darkTheme.textTheme.bodyMedium!.color,
-          title: Row(children: [
-            isScreenWide ? const Text('Sitzung View') : const Text(""),
-            const SizedBox(width: 20),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  foregroundColor: Lib.darkTheme.textTheme.bodyMedium!.color,
-                  backgroundColor: const Color.fromRGBO(11, 80, 181, 1)),
-              onPressed: () => showCreateTop(),
-              child: const Text('Top Erstellen'),
-            ),
-          ]),
-        ),
-        body: Container(
-            color: Lib.darkTheme.colorScheme.surface,
-            child: Flex(
-                direction: isScreenWide ? Axis.horizontal : Axis.vertical,
-                children: [
-                  Expanded(
-                    child: TopListView(sitzungsid, sitzung),
+    return StreamBuilder<List<TopWithAntraege>>(
+        stream: futureTops.asStream(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else {
+            return DragAndDropLists(
+                children: _contents,
+                onItemReorder: _onItemReorder,
+                onListReorder: _onListReorder,
+                onItemAdd: _onItemAdd,
+                onListAdd: _onListAdd,
+                listPadding:
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                itemDecorationWhileDragging: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 3,
+                      offset: const Offset(0, 0), // changes position of shadow
+                    ),
+                  ],
+                ),
+                listInnerDecoration: const BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                ),
+                lastItemTargetHeight: 8,
+                addLastItemTargetHeightToTop: true,
+                lastListTargetSize: 40,
+                listDragHandle: const DragHandle(
+                  verticalAlignment: DragHandleVerticalAlignment.top,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 11, right: 10),
+                    child: Icon(
+                      Icons.menu,
+                      color: Colors.white,
+                    ),
                   ),
-                  Expanded(
-                    child: AntragsListView(sitzungsid, sitzung,
-                        key: antragsListKey),
-                  )
-                ])));
+                ),
+                itemDragHandle: const DragHandle(
+                  child: Padding(
+                    padding: EdgeInsets.only(right: 10),
+                    child: Icon(Icons.menu, color: Colors.white70),
+                  ),
+                ));
+          }
+        });
   }
 
   _onItemReorder(
@@ -391,35 +402,11 @@ class SitzungsViewState extends State<SitzungView> {
     );
   }
 
-  Future<void> addAntrag(
-      TextEditingController titleController,
-      TextEditingController begruendungController,
-      TextEditingController antragstextController) async {
-    final token = await OAuth.getToken(context);
-    var username = await getUsernameFromAccessToken();
-    final antragsteller = await getIDByUsername(username);
-    await http.post(Uri.parse("https://fscs.hhu.de/api/anträge/"),
-        headers: {
-          "Authorization": "Bearer $token",
-          "Content-Type": "application/json; charset=UTF-8"
-        },
-        body: jsonEncode({
-          "titel": titleController.text,
-          "begründung": begruendungController.text,
-          "antragstext": antragstextController.text,
-          "antragssteller": [antragsteller.toString()]
-        }));
-    setState(() {
-      futureAntraege = Antrag.fetchAntraege(showAllAntraege);
-      futureAntraege
-          .then((antraege) => {_contentsAntraege = fetchAntraege(antraege)});
-    });
-  }
-
   Future<void> addAntragToTop(int listIndex) async {
     var tops = await Sitzung.fetchTopWithAntraege(sitzungsid);
-    var antrag = await Antrag.fetchAntraege(showAllAntraege);
-    var antragId = antrag[dragedIndex].id;
+    var antrag =
+        await Antrag.fetchAntraege(AntragsListViewState.showAllAntraege);
+    var antragId = antrag[AntragsListViewState.dragedIndex].id;
     var top = tops[listIndex].id;
     final token = await OAuth.getToken(context);
     await http.patch(
@@ -432,9 +419,7 @@ class SitzungsViewState extends State<SitzungView> {
       futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
       futureTops.then((tops) => {_contents = fetchTops(tops)});
 
-      futureAntraege = Antrag.fetchAntraege(showAllAntraege);
-      futureAntraege
-          .then((antraege) => {_contentsAntraege = fetchAntraege(antraege)});
+      SitzungsViewState.antragsListKey.currentState?.refreshAntraege();
     });
   }
 
@@ -553,6 +538,46 @@ class SitzungsViewState extends State<SitzungView> {
               ),
             ));
           }));
+    });
+  }
+
+  Future<void> editTop(
+      UuidValue topid, String dropdownValue, String text) async {
+    final token = await OAuth.getToken(context);
+    await http.patch(
+        Uri.parse("https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/$topid/"),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json; charset=UTF-8"
+        },
+        body: jsonEncode({
+          "kind": dropdownValue,
+          "name": text,
+        }));
+    setState(() {
+      futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
+      futureTops.then((tops) => {_contents = fetchTops(tops)});
+    });
+  }
+
+  Future<void> editAntrag(UuidValue antragid, String titel, String begruendung,
+      String antragstext) async {
+    final token = await OAuth.getToken(context);
+    await http.patch(Uri.parse("https://fscs.hhu.de/api/anträge/$antragid/"),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json; charset=UTF-8"
+        },
+        body: jsonEncode({
+          "titel": titel,
+          "begründung": begruendung,
+          "antragstext": antragstext,
+        }));
+    setState(() {
+      futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
+      futureTops.then((tops) => {_contents = fetchTops(tops)});
+
+      SitzungsViewState.antragsListKey.currentState?.refreshAntraege();
     });
   }
 
@@ -766,48 +791,6 @@ class SitzungsViewState extends State<SitzungView> {
         });
   }
 
-  Future<void> editTop(
-      UuidValue topid, String dropdownValue, String text) async {
-    final token = await OAuth.getToken(context);
-    await http.patch(
-        Uri.parse("https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/$topid/"),
-        headers: {
-          "Authorization": "Bearer $token",
-          "Content-Type": "application/json; charset=UTF-8"
-        },
-        body: jsonEncode({
-          "kind": dropdownValue,
-          "name": text,
-        }));
-    setState(() {
-      futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
-      futureTops.then((tops) => {_contents = fetchTops(tops)});
-    });
-  }
-
-  Future<void> editAntrag(UuidValue antragid, String titel, String begruendung,
-      String antragstext) async {
-    final token = await OAuth.getToken(context);
-    await http.patch(Uri.parse("https://fscs.hhu.de/api/anträge/$antragid/"),
-        headers: {
-          "Authorization": "Bearer $token",
-          "Content-Type": "application/json; charset=UTF-8"
-        },
-        body: jsonEncode({
-          "titel": titel,
-          "begründung": begruendung,
-          "antragstext": antragstext,
-        }));
-    setState(() {
-      futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
-      futureTops.then((tops) => {_contents = fetchTops(tops)});
-
-      futureAntraege = Antrag.fetchAntraege(showAllAntraege);
-      futureAntraege
-          .then((antraege) => {_contentsAntraege = fetchAntraege(antraege)});
-    });
-  }
-
   showEditAntrag(UuidValue id, String title, String begruendung,
       String antragstext, UuidValue topid, String callPoint) {
     titleController.text = title;
@@ -941,9 +924,7 @@ class SitzungsViewState extends State<SitzungView> {
     });
 
     setState(() {
-      futureAntraege = Antrag.fetchAntraege(showAllAntraege);
-      futureAntraege
-          .then((antraege) => {_contentsAntraege = fetchAntraege(antraege)});
+      SitzungsViewState.antragsListKey.currentState?.refreshAntraege();
       futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
       futureTops.then((tops) => {_contents = fetchTops(tops)});
     });
@@ -964,9 +945,7 @@ class SitzungsViewState extends State<SitzungView> {
       futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
       futureTops.then((tops) => {_contents = fetchTops(tops)});
 
-      futureAntraege = Antrag.fetchAntraege(showAllAntraege);
-      futureAntraege
-          .then((antraege) => {_contentsAntraege = fetchAntraege(antraege)});
+      SitzungsViewState.antragsListKey.currentState?.refreshAntraege();
     });
   }
 

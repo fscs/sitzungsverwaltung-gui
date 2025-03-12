@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:sitzungsverwaltung_gui/Admin/AntragsList.dart';
 import 'package:sitzungsverwaltung_gui/Person.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
@@ -68,6 +69,7 @@ class Antrag {
   }
 
   static Future<List<Antrag>> fetchAntraege(bool all) async {
+    var search = AntragsListViewState.antragsSearchController.value.text;
     var response;
     if (all) {
       response = await http.get(Uri.parse('https://fscs.hhu.de/api/anträge/'));
@@ -82,7 +84,14 @@ class Antrag {
       List<Antrag> antraege = [];
 
       for (var antrag in list) {
-        antraege.add(await fromJsonAsync(antrag));
+        if (search != null) {
+          if (antrag['titel'].contains(search) ||
+              antrag['antragstext'].contains(search) ||
+              antrag['begründung'].contains(search)) {
+            antraege.add(await fromJsonAsync(antrag));
+          }
+        } else
+          antraege.add(await fromJsonAsync(antrag));
       }
 
       return antraege;
