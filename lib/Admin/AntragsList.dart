@@ -7,7 +7,6 @@ import 'package:drag_and_drop_lists/drag_and_drop_list_interface.dart';
 import 'package:drag_and_drop_lists/drag_and_drop_lists.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:sitzungsverwaltung_gui/Admin/AntragsList.dart';
 import 'package:sitzungsverwaltung_gui/Admin/TopsList.dart';
 import 'package:sitzungsverwaltung_gui/Antrag.dart';
 import 'package:sitzungsverwaltung_gui/OAuth.dart';
@@ -18,23 +17,23 @@ import 'package:uuid/uuid_value.dart';
 
 final dateFormat = DateFormat('dd.MM.yyyy HH:mm');
 
-class SitzungView extends StatefulWidget {
+class AntragsListView extends StatefulWidget {
   final Sitzung sitzung;
   final UuidValue id;
-  const SitzungView(this.id, this.sitzung, {super.key});
+  const AntragsListView(this.id, this.sitzung, {super.key});
 
   @override
-  State<SitzungView> createState() => SitzungsViewState(id, sitzung);
+  State<AntragsListView> createState() => AntragsListViewState(id, sitzung);
 }
 
-class SitzungsViewState extends State<SitzungView> {
+class AntragsListViewState extends State<AntragsListView> {
   final UuidValue sitzungsid;
   final Sitzung sitzung;
-  SitzungsViewState(this.sitzungsid, this.sitzung);
+  AntragsListViewState(this.sitzungsid, this.sitzung);
   late List<DragAndDropList> _contents;
-  late Widget _contentsAntraege;
+  static late Widget _contentsAntraege;
   late Future<List<TopWithAntraege>> futureTops;
-  late Future<List<Antrag>> futureAntraege;
+  static late Future<List<Antrag>> futureAntraege;
 
   final nameController = TextEditingController();
   String dropdownValue = "normal";
@@ -42,13 +41,11 @@ class SitzungsViewState extends State<SitzungView> {
   final titleController = TextEditingController();
   final begruendungController = TextEditingController();
   final antragstextController = TextEditingController();
-  final antragsSearchController = TextEditingController();
-  var dragedIndex = -1;
+  static final antragsSearchController = TextEditingController();
+  static var dragedIndex = -1;
   late Timer? _debounceTimer;
 
-  bool showAllAntraege = false;
-  static final GlobalKey<AntragsListViewState> antragsListKey =
-      GlobalKey<AntragsListViewState>();
+  static bool showAllAntraege = false;
 
   @override
   void initState() {
@@ -69,78 +66,111 @@ class SitzungsViewState extends State<SitzungView> {
     super.dispose();
   }
 
+  refreshAntraege() {
+    setState(() {
+      futureAntraege = Antrag.fetchAntraege(showAllAntraege);
+      futureAntraege
+          .then((antraege) => {_contentsAntraege = fetchAntraege(antraege)});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    bool isScreenWide = MediaQuery.sizeOf(context).width >= 600;
+    return Padding(
+        padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+        child: Column(children: [
+          Row(children: [
+            SizedBox(
+                width: 200,
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    ListTile(
+                      title: Text(
+                        'Zugewisen',
+                        style: TextStyle(
+                            color: Lib.darkTheme.textTheme.bodyMedium!.color),
+                      ),
+                      leading: Radio<bool>(
+                        value: true,
+                        groupValue: showAllAntraege,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            showAllAntraege = value!;
+                            futureAntraege =
+                                Antrag.fetchAntraege(showAllAntraege);
+                            futureAntraege.then((antraege) =>
+                                {_contentsAntraege = fetchAntraege(antraege)});
+                          });
+                        },
+                      ),
+                    ),
+                    ListTile(
+                      title: Text(
+                        'Nicht Zugewisen',
+                        style: TextStyle(
+                            color: Lib.darkTheme.textTheme.bodyMedium!.color),
+                      ),
+                      leading: Radio<bool>(
+                        value: false,
+                        groupValue: showAllAntraege,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            showAllAntraege = value!;
+                            futureAntraege =
+                                Antrag.fetchAntraege(showAllAntraege);
+                            futureAntraege.then((antraege) =>
+                                {_contentsAntraege = fetchAntraege(antraege)});
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                )),
+            Expanded(
+                child: TextField(
+              controller: antragsSearchController,
+              onChanged: (text) {
+                // Cancel any existing timer
+                _debounceTimer?.cancel();
 
-    return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Lib.darkTheme.colorScheme.surfaceDim,
-          foregroundColor: Lib.darkTheme.textTheme.bodyMedium!.color,
-          title: Row(children: [
-            isScreenWide ? const Text('Sitzung View') : const Text(""),
-            const SizedBox(width: 20),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  foregroundColor: Lib.darkTheme.textTheme.bodyMedium!.color,
-                  backgroundColor: const Color.fromRGBO(11, 80, 181, 1)),
-              onPressed: () => showCreateTop(),
-              child: const Text('Top Erstellen'),
-            ),
+                // Start a new timer to wait for the user to stop typing
+                _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+                  // This block will run after 500ms of inactivity
+                  setState(() {
+                    futureAntraege = Antrag.fetchAntraege(showAllAntraege);
+                    futureAntraege.then((antraege) {
+                      setState(() {
+                        _contentsAntraege = fetchAntraege(antraege);
+                      });
+                    });
+                  });
+                });
+              },
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Search',
+                labelStyle: TextStyle(color: Colors.white70),
+              ),
+            )),
           ]),
-        ),
-        body: Container(
-            color: Lib.darkTheme.colorScheme.surface,
-            child: Flex(
-                direction: isScreenWide ? Axis.horizontal : Axis.vertical,
-                children: [
-                  Expanded(
-                    child: TopListView(sitzungsid, sitzung),
-                  ),
-                  Expanded(
-                    child: AntragsListView(sitzungsid, sitzung,
-                        key: antragsListKey),
-                  )
-                ])));
-  }
-
-  _onItemReorder(
-      int oldItemIndex, int oldListIndex, int newItemIndex, int newListIndex) {
-    setState(() {
-      var movedItem = _contents[oldListIndex].children.removeAt(oldItemIndex);
-      _contents[newListIndex].children.insert(newItemIndex, movedItem);
-
-      updateAntragApi(oldItemIndex, oldListIndex, newItemIndex, newListIndex);
-    });
-  }
-
-  _onListReorder(int oldListIndex, int newListIndex) {
-    setState(() {
-      var movedList = _contents.removeAt(oldListIndex);
-      _contents.insert(newListIndex, movedList);
-      updateTopApi(oldListIndex, newListIndex);
-    });
-  }
-
-  _onItemAdd(DragAndDropItem newItem, int listIndex, int itemIndex) {
-    setState(() {
-      if (itemIndex == -1) {
-        _contents[listIndex].children.add(newItem);
-      } else {
-        _contents[listIndex].children.insert(itemIndex, newItem);
-      }
-      addAntragToTop(listIndex);
-    });
-  }
-
-  _onListAdd(DragAndDropListInterface newList, int listIndex) {
-    setState(() {
-      if (listIndex == -1) {
-        _contents.add(newList as DragAndDropList);
-      } else {
-        _contents.insert(listIndex, newList as DragAndDropList);
-      }
-    });
+          Expanded(
+            child: FutureBuilder<List<Antrag>>(
+                future: futureAntraege,
+                builder: (context, secondSnapshot) {
+                  if (secondSnapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (secondSnapshot.hasError) {
+                    return Center(
+                        child: Text('Error: ${secondSnapshot.error}'));
+                  } else {
+                    return _contentsAntraege;
+                  }
+                }),
+          ),
+        ]));
   }
 
   Future<void> updateAntragApi(int oldItemIndex, int oldListIndex,
