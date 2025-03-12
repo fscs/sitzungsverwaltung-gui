@@ -302,7 +302,8 @@ class AdminMainPageState extends State<AdminMainPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => SitzungView(sitzungen[index].id)));
+                      builder: (context) =>
+                          SitzungView(sitzungen[index].id, sitzungen[index])));
             },
             child: Container(
               height: 50,
