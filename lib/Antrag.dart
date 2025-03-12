@@ -67,7 +67,7 @@ class Antrag {
         createdAt: DateTime.parse(json['created_at']));
   }
 
-  static Future<List<Antrag>> fetchAntraege(bool all) async {
+  static Future<List<Antrag>> fetchAntraege(bool all, {String? search}) async {
     var response;
     if (all) {
       response = await http.get(Uri.parse('https://fscs.hhu.de/api/anträge/'));
@@ -82,7 +82,14 @@ class Antrag {
       List<Antrag> antraege = [];
 
       for (var antrag in list) {
-        antraege.add(await fromJsonAsync(antrag));
+        if (search != null) {
+          if (antrag['titel'].contains(search) ||
+              antrag['antragstext'].contains(search) ||
+              antrag['begründung'].contains(search)) {
+            antraege.add(await fromJsonAsync(antrag));
+          }
+        } else
+          antraege.add(await fromJsonAsync(antrag));
       }
 
       return antraege;

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:html' as html;
 import 'package:http/http.dart' as http;
@@ -39,7 +40,9 @@ class SitzungsViewState extends State<SitzungView> {
   final titleController = TextEditingController();
   final begruendungController = TextEditingController();
   final antragstextController = TextEditingController();
+  final antragsSearchController = TextEditingController();
   var dragedIndex = -1;
+  late Timer? _debounceTimer;
 
   bool showAllAntraege = false;
 
@@ -53,6 +56,13 @@ class SitzungsViewState extends State<SitzungView> {
     futureAntraege = Antrag.fetchAntraege(showAllAntraege);
     futureAntraege
         .then((antraege) => {_contentsAntraege = fetchAntraege(antraege)});
+    _debounceTimer = Timer(Duration(milliseconds: 0), () {});
+  }
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -153,71 +163,119 @@ class SitzungsViewState extends State<SitzungView> {
                                           padding: const EdgeInsets.only(
                                               left: 10, right: 10, top: 10),
                                           child: Column(children: [
-                                            ListView(
-                                              shrinkWrap: true,
-                                              children: [
-                                                ListTile(
-                                                  title: Text(
-                                                    'Zugewisen',
-                                                    style: TextStyle(
-                                                        color: Lib
-                                                            .darkTheme
-                                                            .textTheme
-                                                            .bodyMedium!
-                                                            .color),
-                                                  ),
-                                                  leading: Radio<bool>(
-                                                    value: true,
-                                                    groupValue: showAllAntraege,
-                                                    onChanged: (bool? value) {
-                                                      setState(() {
-                                                        showAllAntraege =
-                                                            value!;
-                                                        futureAntraege = Antrag
-                                                            .fetchAntraege(
-                                                                showAllAntraege);
-                                                        futureAntraege.then(
-                                                            (antraege) => {
-                                                                  _contentsAntraege =
-                                                                      fetchAntraege(
-                                                                          antraege)
-                                                                });
+                                            Row(children: [
+                                              SizedBox(
+                                                  width: 200,
+                                                  child: ListView(
+                                                    shrinkWrap: true,
+                                                    children: [
+                                                      ListTile(
+                                                        title: Text(
+                                                          'Zugewisen',
+                                                          style: TextStyle(
+                                                              color: Lib
+                                                                  .darkTheme
+                                                                  .textTheme
+                                                                  .bodyMedium!
+                                                                  .color),
+                                                        ),
+                                                        leading: Radio<bool>(
+                                                          value: true,
+                                                          groupValue:
+                                                              showAllAntraege,
+                                                          onChanged:
+                                                              (bool? value) {
+                                                            setState(() {
+                                                              showAllAntraege =
+                                                                  value!;
+                                                              futureAntraege = Antrag
+                                                                  .fetchAntraege(
+                                                                      showAllAntraege);
+                                                              futureAntraege.then(
+                                                                  (antraege) =>
+                                                                      {
+                                                                        _contentsAntraege =
+                                                                            fetchAntraege(antraege)
+                                                                      });
+                                                            });
+                                                          },
+                                                        ),
+                                                      ),
+                                                      ListTile(
+                                                        title: Text(
+                                                          'Nicht Zugewisen',
+                                                          style: TextStyle(
+                                                              color: Lib
+                                                                  .darkTheme
+                                                                  .textTheme
+                                                                  .bodyMedium!
+                                                                  .color),
+                                                        ),
+                                                        leading: Radio<bool>(
+                                                          value: false,
+                                                          groupValue:
+                                                              showAllAntraege,
+                                                          onChanged:
+                                                              (bool? value) {
+                                                            setState(() {
+                                                              showAllAntraege =
+                                                                  value!;
+                                                              futureAntraege = Antrag
+                                                                  .fetchAntraege(
+                                                                      showAllAntraege);
+                                                              futureAntraege.then(
+                                                                  (antraege) =>
+                                                                      {
+                                                                        _contentsAntraege =
+                                                                            fetchAntraege(antraege)
+                                                                      });
+                                                            });
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  )),
+                                              Expanded(
+                                                  child: TextField(
+                                                controller:
+                                                    antragsSearchController,
+                                                onChanged: (text) {
+                                                  // Cancel any existing timer
+                                                  _debounceTimer?.cancel();
+
+                                                  // Start a new timer to wait for the user to stop typing
+                                                  _debounceTimer = Timer(
+                                                      const Duration(
+                                                          milliseconds: 500),
+                                                      () {
+                                                    // This block will run after 500ms of inactivity
+                                                    setState(() {
+                                                      futureAntraege =
+                                                          Antrag.fetchAntraege(
+                                                              showAllAntraege,
+                                                              search: text);
+                                                      futureAntraege
+                                                          .then((antraege) {
+                                                        setState(() {
+                                                          _contentsAntraege =
+                                                              fetchAntraege(
+                                                                  antraege);
+                                                        });
                                                       });
-                                                    },
-                                                  ),
+                                                    });
+                                                  });
+                                                },
+                                                style: const TextStyle(
+                                                    color: Colors.white),
+                                                decoration:
+                                                    const InputDecoration(
+                                                  border: OutlineInputBorder(),
+                                                  labelText: 'Search',
+                                                  labelStyle: TextStyle(
+                                                      color: Colors.white70),
                                                 ),
-                                                ListTile(
-                                                  title: Text(
-                                                    'Nicht Zugewisen',
-                                                    style: TextStyle(
-                                                        color: Lib
-                                                            .darkTheme
-                                                            .textTheme
-                                                            .bodyMedium!
-                                                            .color),
-                                                  ),
-                                                  leading: Radio<bool>(
-                                                    value: false,
-                                                    groupValue: showAllAntraege,
-                                                    onChanged: (bool? value) {
-                                                      setState(() {
-                                                        showAllAntraege =
-                                                            value!;
-                                                        futureAntraege = Antrag
-                                                            .fetchAntraege(
-                                                                showAllAntraege);
-                                                        futureAntraege.then(
-                                                            (antraege) => {
-                                                                  _contentsAntraege =
-                                                                      fetchAntraege(
-                                                                          antraege)
-                                                                });
-                                                      });
-                                                    },
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                              )),
+                                            ]),
                                             Expanded(
                                               child: _contentsAntraege,
                                             )
@@ -636,7 +694,7 @@ class SitzungsViewState extends State<SitzungView> {
                     ),
                   ),
                   SizedBox(
-                    width: 300,
+                    width: 150,
                     child: Padding(
                         padding: const EdgeInsets.only(left: 8, bottom: 4),
                         child: Row(
@@ -750,7 +808,7 @@ class SitzungsViewState extends State<SitzungView> {
                         ),
                       ),
                       SizedBox(
-                        width: 300,
+                        width: 150,
                         child: Padding(
                             padding: const EdgeInsets.only(left: 8, bottom: 4),
                             child: Row(
@@ -846,7 +904,7 @@ class SitzungsViewState extends State<SitzungView> {
                         ),
                       ),
                       SizedBox(
-                        width: 300,
+                        width: 150,
                         child: Padding(
                             padding: const EdgeInsets.only(left: 8, bottom: 4),
                             child: Row(
