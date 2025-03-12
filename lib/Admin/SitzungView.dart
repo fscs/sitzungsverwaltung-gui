@@ -764,15 +764,31 @@ class SitzungsViewState extends State<SitzungView> {
                             )),
                       ),
                       SizedBox(
-                          width: 100,
-                          child: Padding(
-                              padding:
-                                  const EdgeInsets.only(right: 10, bottom: 4),
-                              child: Text(
-                                  dateFormat.format(antraege[index].createdAt),
-                                  style: TextStyle(
-                                      color: Lib.darkTheme.textTheme.bodyMedium!
-                                          .color)))),
+                        width: 100,
+                        child: Padding(
+                            padding:
+                                const EdgeInsets.only(right: 10, bottom: 4),
+                            child: Builder(builder: (context) {
+                              if (antraege[index]
+                                      .createdAt
+                                      .compareTo(sitzung.antragsfrist) <
+                                  0) {
+                                return Text(
+                                    dateFormat
+                                        .format(antraege[index].createdAt),
+                                    style: TextStyle(
+                                        color: Lib.darkTheme.textTheme
+                                            .bodyMedium!.color));
+                              } else {
+                                return Text(
+                                    dateFormat
+                                        .format(antraege[index].createdAt),
+                                    style: const TextStyle(
+                                      color: Colors.red,
+                                    ));
+                              }
+                            })),
+                      )
                     ]),
                   )
                 : LongPressDraggable<DragAndDropItem>(
@@ -844,15 +860,31 @@ class SitzungsViewState extends State<SitzungView> {
                             )),
                       ),
                       SizedBox(
-                          width: 100,
-                          child: Padding(
-                              padding:
-                                  const EdgeInsets.only(right: 10, bottom: 4),
-                              child: Text(
-                                  dateFormat.format(antraege[index].createdAt),
-                                  style: TextStyle(
-                                      color: Lib.darkTheme.textTheme.bodyMedium!
-                                          .color)))),
+                        width: 100,
+                        child: Padding(
+                            padding:
+                                const EdgeInsets.only(right: 10, bottom: 4),
+                            child: Builder(builder: (context) {
+                              if (antraege[index]
+                                      .createdAt
+                                      .compareTo(sitzung.antragsfrist) <
+                                  0) {
+                                return Text(
+                                    dateFormat
+                                        .format(antraege[index].createdAt),
+                                    style: TextStyle(
+                                        color: Lib.darkTheme.textTheme
+                                            .bodyMedium!.color));
+                              } else {
+                                return Text(
+                                    dateFormat
+                                        .format(antraege[index].createdAt),
+                                    style: const TextStyle(
+                                      color: Colors.red,
+                                    ));
+                              }
+                            })),
+                      )
                     ]),
                   ),
           );
