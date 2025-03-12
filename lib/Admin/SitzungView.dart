@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:drag_and_drop_lists/drag_and_drop_list_interface.dart';
 import 'package:drag_and_drop_lists/drag_and_drop_lists.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:sitzungsverwaltung_gui/Antrag.dart';
 import 'package:sitzungsverwaltung_gui/OAuth.dart';
 import 'package:sitzungsverwaltung_gui/Sitzung.dart';
@@ -12,17 +13,21 @@ import 'package:sitzungsverwaltung_gui/Top.dart';
 import 'package:sitzungsverwaltung_gui/lib.dart';
 import 'package:uuid/uuid_value.dart';
 
+final dateFormat = DateFormat('dd.MM.yyyy HH:mm');
+
 class SitzungView extends StatefulWidget {
+  final Sitzung sitzung;
   final UuidValue id;
-  const SitzungView(this.id, {super.key});
+  const SitzungView(this.id, this.sitzung, {super.key});
 
   @override
-  State<SitzungView> createState() => SitzungsViewState(id);
+  State<SitzungView> createState() => SitzungsViewState(id, sitzung);
 }
 
 class SitzungsViewState extends State<SitzungView> {
   final UuidValue sitzungsid;
-  SitzungsViewState(this.sitzungsid);
+  final Sitzung sitzung;
+  SitzungsViewState(this.sitzungsid, this.sitzung);
   late List<DragAndDropList> _contents;
   late Widget _contentsAntraege;
   late Future<List<TopWithAntraege>> futureTops;
@@ -644,6 +649,31 @@ class SitzungsViewState extends State<SitzungView> {
                           }).toList(),
                         )),
                   ),
+                  SizedBox(
+                      width: 100,
+                      child: Padding(
+                          padding: const EdgeInsets.only(right: 10, bottom: 4),
+                          child: Builder(builder: (context) {
+                            if (tops[index]
+                                    .antraege[index2]
+                                    .createdAt
+                                    .compareTo(sitzung.antragsfrist) <
+                                0) {
+                              return Text(
+                                  dateFormat.format(
+                                      tops[index].antraege[index2].createdAt),
+                                  style: TextStyle(
+                                      color: Lib.darkTheme.textTheme.bodyMedium!
+                                          .color));
+                            } else {
+                              return Text(
+                                  dateFormat.format(
+                                      tops[index].antraege[index2].createdAt),
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                  ));
+                            }
+                          }))),
                 ],
               ),
             ));
@@ -733,6 +763,16 @@ class SitzungsViewState extends State<SitzungView> {
                               }).toList(),
                             )),
                       ),
+                      SizedBox(
+                          width: 100,
+                          child: Padding(
+                              padding:
+                                  const EdgeInsets.only(right: 10, bottom: 4),
+                              child: Text(
+                                  dateFormat.format(antraege[index].createdAt),
+                                  style: TextStyle(
+                                      color: Lib.darkTheme.textTheme.bodyMedium!
+                                          .color)))),
                     ]),
                   )
                 : LongPressDraggable<DragAndDropItem>(
@@ -803,6 +843,16 @@ class SitzungsViewState extends State<SitzungView> {
                               }).toList(),
                             )),
                       ),
+                      SizedBox(
+                          width: 100,
+                          child: Padding(
+                              padding:
+                                  const EdgeInsets.only(right: 10, bottom: 4),
+                              child: Text(
+                                  dateFormat.format(antraege[index].createdAt),
+                                  style: TextStyle(
+                                      color: Lib.darkTheme.textTheme.bodyMedium!
+                                          .color)))),
                     ]),
                   ),
           );

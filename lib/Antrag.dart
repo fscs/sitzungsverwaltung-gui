@@ -10,6 +10,7 @@ class Antrag {
   final UuidValue id;
   final String title;
   final List<dynamic> creators;
+  final DateTime createdAt;
 
   static List<Person> persons = [];
 
@@ -19,6 +20,7 @@ class Antrag {
     required this.antragstext,
     required this.begruendung,
     required this.creators,
+    required this.createdAt,
   });
 
   static Future<Antrag> fromJsonAsync(Map<String, dynamic> json2) async {
@@ -51,6 +53,7 @@ class Antrag {
       begruendung: json2['begründung'] as String,
       creators:
           creators.toSet().toList(), // List of creators after async fetching
+      createdAt: DateTime.parse(json2['created_at']),
     );
   }
 
@@ -60,7 +63,8 @@ class Antrag {
         title: json['titel'] as String,
         antragstext: json['antragstext'] as String,
         begruendung: json['begründung'] as String,
-        creators: json['creators'] as List<dynamic>);
+        creators: json['creators'] as List<dynamic>,
+        createdAt: DateTime.parse(json['created_at']));
   }
 
   static Future<List<Antrag>> fetchAntraege(bool all) async {

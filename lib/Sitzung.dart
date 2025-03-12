@@ -9,21 +9,23 @@ class Sitzung {
   final UuidValue id;
   final DateTime datetime;
   final String location;
+  final DateTime antragsfrist;
 
   const Sitzung({
     required this.kind,
     required this.id,
     required this.datetime,
     required this.location,
+    required this.antragsfrist,
   });
 
   factory Sitzung.fromJson(Map<String, dynamic> json) {
     return Sitzung(
-      kind: SitzungKind.values.byName(json['kind']),
-      id: UuidValue.fromString(json['id']),
-      datetime: DateTime.parse(json['datetime']),
-      location: json['location'] as String,
-    );
+        kind: SitzungKind.values.byName(json['kind']),
+        id: UuidValue.fromString(json['id']),
+        datetime: DateTime.parse(json['datetime']),
+        location: json['location'] as String,
+        antragsfrist: DateTime.parse(json['antragsfrist']));
   }
 
   static Future<List<Sitzung>> fetchSitzungen() async {
