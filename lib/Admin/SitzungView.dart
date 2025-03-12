@@ -1088,6 +1088,10 @@ class SitzungsViewState extends State<SitzungView> {
     setState(() {
       futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
       futureTops.then((tops) => {_contents = fetchTops(tops)});
+
+      futureAntraege = Antrag.fetchAntraege(showAllAntraege);
+      futureAntraege
+          .then((antraege) => {_contentsAntraege = fetchAntraege(antraege)});
     });
   }
 
