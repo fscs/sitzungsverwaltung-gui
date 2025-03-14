@@ -329,8 +329,8 @@ class AdminMainPageState extends State<AdminMainPage> {
                     TextButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        editSitzung(
-                            id, dropdownValue, date, locationController.text);
+                        editSitzung(id, dropdownValue, date,
+                            locationController.text, antragsfristdate);
                       },
                       child: const Text('Save',
                           style: TextStyle(color: Colors.white)),
@@ -445,8 +445,8 @@ class AdminMainPageState extends State<AdminMainPage> {
     });
   }
 
-  Future<void> editSitzung(
-      UuidValue id, String dropdownValue, DateTime date, String text) async {
+  Future<void> editSitzung(UuidValue id, String dropdownValue, DateTime date,
+      String text, DateTime antragsfristdate) async {
     final token = await OAuth.getToken(context);
 
     await http.patch(Uri.parse("https://fscs.hhu.de/api/sitzungen/$id/"),
@@ -457,7 +457,8 @@ class AdminMainPageState extends State<AdminMainPage> {
         body: jsonEncode({
           "kind": dropdownValue,
           "location": text,
-          "datetime": date.toUtc().toIso8601String()
+          "datetime": date.toUtc().toIso8601String(),
+          "antragsfrist": antragsfristdate.toUtc().toIso8601String()
         }));
 
     setState(() {
