@@ -424,6 +424,7 @@ class TopListViewState extends State<TopListView> {
   }
 
   List<DragAndDropList> fetchTops(List<TopWithAntraege> tops) {
+    var isScreenWide = MediaQuery.sizeOf(context).width >= 600;
     return List.generate(tops.length, (index) {
       return DragAndDropList(
           decoration: BoxDecoration(
@@ -495,20 +496,25 @@ class TopListViewState extends State<TopListView> {
                       ),
                     ),
                   ),
-                  SizedBox(
-                    width: 150,
-                    child: Padding(
-                        padding: const EdgeInsets.only(left: 8, bottom: 4),
-                        child: Row(
-                          children:
-                              tops[index].antraege[index2].creators.map((text) {
-                            return Text(text,
-                                style: TextStyle(
-                                    color: Lib.darkTheme.textTheme.bodyMedium!
-                                        .color));
-                          }).toList(),
-                        )),
-                  ),
+                  isScreenWide
+                      ? SizedBox(
+                          width: 150,
+                          child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 8, bottom: 4),
+                              child: Row(
+                                children: tops[index]
+                                    .antraege[index2]
+                                    .creators
+                                    .map((text) {
+                                  return Text(text,
+                                      style: TextStyle(
+                                          color: Lib.darkTheme.textTheme
+                                              .bodyMedium!.color));
+                                }).toList(),
+                              )),
+                        )
+                      : SizedBox(),
                   SizedBox(
                       width: 100,
                       child: Padding(
