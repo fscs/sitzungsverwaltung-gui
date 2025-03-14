@@ -49,6 +49,8 @@ class SitzungsViewState extends State<SitzungView> {
   bool showAllAntraege = false;
   static final GlobalKey<AntragsListViewState> antragsListKey =
       GlobalKey<AntragsListViewState>();
+  static final GlobalKey<TopListViewState> topListKey =
+      GlobalKey<TopListViewState>();
 
   @override
   void initState() {
@@ -95,7 +97,7 @@ class SitzungsViewState extends State<SitzungView> {
                 direction: isScreenWide ? Axis.horizontal : Axis.vertical,
                 children: [
                   Expanded(
-                    child: TopListView(sitzungsid, sitzung),
+                    child: TopListView(sitzungsid, sitzung, key: topListKey),
                   ),
                   Expanded(
                     child: AntragsListView(sitzungsid, sitzung,
@@ -203,11 +205,7 @@ class SitzungsViewState extends State<SitzungView> {
           "name": text,
           "inhalt": "",
         }));
-
-    setState(() {
-      futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
-      futureTops.then((tops) => {_contents = fetchTops(tops)});
-    });
+    SitzungsViewState.topListKey.currentState?.refreshTops();
   }
 
   showCreateTop() {
