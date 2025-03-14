@@ -43,6 +43,7 @@ class AdminMainPageState extends State<AdminMainPage> {
   late Future<List<Sitzung>> futureSitzung;
   final locationController = TextEditingController();
   var date = DateTime.now();
+  var antragsfristdate = DateTime.now();
   String dropdownValue = "normal";
 
   @override
@@ -112,8 +113,8 @@ class AdminMainPageState extends State<AdminMainPage> {
                     }))));
   }
 
-  Future<void> addSitzung(
-      String dropdownValue, DateTime date, String text) async {
+  Future<void> addSitzung(String dropdownValue, DateTime date, String text,
+      DateTime antragsfristdate) async {
     final token = await OAuth.getToken(context);
 
     await http.post(Uri.parse("https://fscs.hhu.de/api/sitzungen/"),
@@ -124,7 +125,8 @@ class AdminMainPageState extends State<AdminMainPage> {
         body: jsonEncode({
           "kind": dropdownValue,
           "location": text,
-          "datetime": date.toUtc().toIso8601String()
+          "datetime": date.toUtc().toIso8601String(),
+          "antragsfrist": antragsfristdate.toUtc().toIso8601String()
         }));
 
     setState(() {
@@ -134,8 +136,8 @@ class AdminMainPageState extends State<AdminMainPage> {
     });
   }
 
-  showEditSitzungDialog(
-      UuidValue id, DateTime datetime, String location, SitzungKind kind) {
+  showEditSitzungDialog(UuidValue id, DateTime datetime, String location,
+      SitzungKind kind, DateTime antragsfristdate) {
     date = datetime;
     dropdownValue = kind.name;
     locationController.text = location;
@@ -198,7 +200,8 @@ class AdminMainPageState extends State<AdminMainPage> {
                                 context: context,
                                 firstDate: DateTime(2000),
                                 lastDate: DateTime(3000),
-                                initialDate: date)
+                                initialDate: (tz.TZDateTime.from(
+                                    date, tz.getLocation("Europe/Berlin"))))
                             // ignore: unnecessary_set_literal
                             .then((selectedDate) => {
                                   if (selectedDate != null)
@@ -208,7 +211,9 @@ class AdminMainPageState extends State<AdminMainPage> {
                                       })
                                     }
                                 }),
-                        child: Text(DateFormat('dd.MM.yyyy').format(date))),
+                        child: Text(DateFormat('dd.MM.yyyy').format(
+                            tz.TZDateTime.from(
+                                date, tz.getLocation("Europe/Berlin"))))),
                     const SizedBox(width: 10),
                     const Text("Time", style: TextStyle(color: Colors.white)),
                     const SizedBox(width: 10),
@@ -216,7 +221,9 @@ class AdminMainPageState extends State<AdminMainPage> {
                         onPressed: () async => await showTimePicker(
                                 initialEntryMode: TimePickerEntryMode.input,
                                 context: context,
-                                initialTime: TimeOfDay.fromDateTime(date))
+                                initialTime: TimeOfDay.fromDateTime(
+                                    tz.TZDateTime.from(
+                                        date, tz.getLocation("Europe/Berlin"))))
                             // ignore: unnecessary_set_literal
                             .then((selectedDate) => {
                                   if (selectedDate != null)
@@ -231,7 +238,64 @@ class AdminMainPageState extends State<AdminMainPage> {
                                       })
                                     }
                                 }),
-                        child: Text(DateFormat('HH:MM').format(date))),
+                        child: Text(DateFormat('HH:mm').format(
+                            tz.TZDateTime.from(
+                                date, tz.getLocation("Europe/Berlin"))))),
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text("Antragsfrist",
+                        style: TextStyle(color: Colors.white)),
+                    const SizedBox(width: 10),
+                    ElevatedButton(
+                        onPressed: () async => await showDatePicker(
+                                context: context,
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(3000),
+                                initialDate: (tz.TZDateTime.from(
+                                    antragsfristdate,
+                                    tz.getLocation("Europe/Berlin"))))
+                            // ignore: unnecessary_set_literal
+                            .then((selectedDate) => {
+                                  if (selectedDate != null)
+                                    {
+                                      setState(() {
+                                        antragsfristdate = selectedDate;
+                                      })
+                                    }
+                                }),
+                        child: Text(DateFormat('dd.MM.yyyy').format(
+                            tz.TZDateTime.from(antragsfristdate,
+                                tz.getLocation("Europe/Berlin"))))),
+                    const SizedBox(width: 10),
+                    const Text("Time", style: TextStyle(color: Colors.white)),
+                    const SizedBox(width: 10),
+                    ElevatedButton(
+                        onPressed: () async => await showTimePicker(
+                                initialEntryMode: TimePickerEntryMode.input,
+                                context: context,
+                                initialTime: TimeOfDay.fromDateTime(
+                                    tz.TZDateTime.from(antragsfristdate,
+                                        tz.getLocation("Europe/Berlin"))))
+                            // ignore: unnecessary_set_literal
+                            .then((selectedDate) => {
+                                  if (selectedDate != null)
+                                    {
+                                      setState(() {
+                                        antragsfristdate = DateTime(
+                                            antragsfristdate.year,
+                                            antragsfristdate.month,
+                                            antragsfristdate.day,
+                                            selectedDate.hour,
+                                            selectedDate.minute);
+                                      })
+                                    }
+                                }),
+                        child: Text(DateFormat('HH:mm').format(
+                            tz.TZDateTime.from(antragsfristdate,
+                                tz.getLocation("Europe/Berlin"))))),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -323,7 +387,8 @@ class AdminMainPageState extends State<AdminMainPage> {
                               sitzungen[index].id,
                               sitzungen[index].datetime,
                               sitzungen[index].location,
-                              sitzungen[index].kind),
+                              sitzungen[index].kind,
+                              sitzungen[index].antragsfrist),
                           child: const Text("EDIT"))),
                   SizedBox(
                       width: 100,
@@ -406,6 +471,8 @@ class AdminMainPageState extends State<AdminMainPage> {
     date = DateTime.now();
     dropdownValue = "normal";
     locationController.text = "";
+    antragsfristdate = DateTime.now();
+
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => StatefulBuilder(
@@ -497,7 +564,57 @@ class AdminMainPageState extends State<AdminMainPage> {
                                       })
                                     }
                                 }),
-                        child: Text(DateFormat('HH:MM').format(date))),
+                        child: Text(DateFormat('HH:mm').format(date))),
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text("Antragsfrist",
+                        style: TextStyle(color: Colors.white)),
+                    const SizedBox(width: 10),
+                    ElevatedButton(
+                        onPressed: () async => await showDatePicker(
+                                context: context,
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(3000),
+                                initialDate: antragsfristdate)
+                            // ignore: unnecessary_set_literal
+                            .then((selectedDate) => {
+                                  if (selectedDate != null)
+                                    {
+                                      setState(() {
+                                        antragsfristdate = selectedDate;
+                                      })
+                                    }
+                                }),
+                        child: Text(
+                            DateFormat('dd.MM.yyyy').format(antragsfristdate))),
+                    const SizedBox(width: 10),
+                    const Text("Time", style: TextStyle(color: Colors.white)),
+                    const SizedBox(width: 10),
+                    ElevatedButton(
+                        onPressed: () async => await showTimePicker(
+                                initialEntryMode: TimePickerEntryMode.input,
+                                context: context,
+                                initialTime:
+                                    TimeOfDay.fromDateTime(antragsfristdate))
+                            // ignore: unnecessary_set_literal
+                            .then((selectedDate) => {
+                                  if (selectedDate != null)
+                                    {
+                                      setState(() {
+                                        antragsfristdate = DateTime(
+                                            antragsfristdate.year,
+                                            antragsfristdate.month,
+                                            antragsfristdate.day,
+                                            selectedDate.hour,
+                                            selectedDate.minute);
+                                      })
+                                    }
+                                }),
+                        child:
+                            Text(DateFormat('HH:mm').format(antragsfristdate))),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -508,6 +625,7 @@ class AdminMainPageState extends State<AdminMainPage> {
                     width: 300,
                     child: TextField(
                       controller: locationController,
+                      style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Location',
@@ -530,8 +648,8 @@ class AdminMainPageState extends State<AdminMainPage> {
                     TextButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        addSitzung(
-                            dropdownValue, date, locationController.text);
+                        addSitzung(dropdownValue, date, locationController.text,
+                            antragsfristdate);
                       },
                       child: const Text('Save',
                           style: TextStyle(color: Colors.white)),
