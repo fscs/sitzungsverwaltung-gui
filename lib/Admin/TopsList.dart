@@ -32,10 +32,10 @@ class TopListViewState extends State<TopListView> {
   final Sitzung sitzung;
   TopListViewState(this.sitzungsid, this.sitzung);
   late List<DragAndDropList> _contents;
-  late Widget _contentsAntraege;
   static late Future<List<TopWithAntraege>> futureTops;
 
   final nameController = TextEditingController();
+  final inhaltController = TextEditingController();
   String dropdownValue = "normal";
 
   final titleController = TextEditingController();
@@ -208,7 +208,7 @@ class TopListViewState extends State<TopListView> {
     });
   }
 
-  Future<void> addTop(String dropdownValue, String text) async {
+  Future<void> addTop(String dropdownValue, String name, String inhalt) async {
     final token = await OAuth.getToken(context);
     await http.post(
         Uri.parse("https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/"),
@@ -218,8 +218,8 @@ class TopListViewState extends State<TopListView> {
         },
         body: jsonEncode({
           "kind": dropdownValue,
-          "name": text,
-          "inhalt": "",
+          "name": name,
+          "inhalt": inhalt,
         }));
 
     setState(() {
@@ -228,99 +228,9 @@ class TopListViewState extends State<TopListView> {
     });
   }
 
-  showCreateTop() {
-    nameController.text = "";
-    dropdownValue = "normal";
-    showDialog<String>(
-      context: context,
-      builder: (BuildContext context) => StatefulBuilder(
-        builder: (BuildContext context, StateSetter setState) => Dialog(
-          backgroundColor: Lib.darkTheme.colorScheme.surface,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                const SizedBox(
-                  height: 10,
-                ),
-                Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Text("Name", style: TextStyle(color: Colors.white)),
-                  const SizedBox(width: 10),
-                  SizedBox(
-                    width: 300,
-                    child: TextField(
-                      controller: nameController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Name',
-                        labelStyle: TextStyle(color: Colors.white70),
-                      ),
-                    ),
-                  ),
-                ]),
-                const SizedBox(height: 20),
-                Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Text('Kind', style: TextStyle(color: Colors.white)),
-                  const SizedBox(width: 10),
-                  SizedBox(
-                    width: 300,
-                    child: DropdownButton<String>(
-                      dropdownColor: Lib.darkTheme.colorScheme.surface,
-                      value: dropdownValue,
-                      items: <String>[
-                        'normal',
-                        'regularia',
-                        'bericht',
-                        'verschiedenes'
-                      ].map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value,
-                              style: TextStyle(color: Colors.white)),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          dropdownValue = value!;
-                        });
-                      },
-                    ),
-                  ),
-                ]),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Text('Close',
-                          style: TextStyle(color: Colors.white)),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        addTop(dropdownValue, nameController.text);
-                      },
-                      child: const Text('Save',
-                          style: TextStyle(color: Colors.white)),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  showEditTop(UuidValue uuid, String name, TopKind kind) {
+  showEditTop(UuidValue uuid, String name, TopKind kind, String inhalt) {
     nameController.text = name;
+    inhaltController.text = inhalt;
     dropdownValue = kind.name;
     showDialog<String>(
       context: context,
@@ -352,6 +262,23 @@ class TopListViewState extends State<TopListView> {
                     ),
                   ),
                 ]),
+                const SizedBox(height: 10),
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  const Text("Inhalt", style: TextStyle(color: Colors.white)),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 300,
+                    child: TextField(
+                      controller: inhaltController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Inhalt',
+                        labelStyle: TextStyle(color: Colors.white70),
+                      ),
+                    ),
+                  ),
+                ]),
                 const SizedBox(height: 20),
                 Row(mainAxisSize: MainAxisSize.min, children: [
                   const Text('Kind', style: TextStyle(color: Colors.white)),
@@ -394,7 +321,8 @@ class TopListViewState extends State<TopListView> {
                     TextButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        editTop(uuid, dropdownValue, nameController.text);
+                        editTop(uuid, dropdownValue, nameController.text,
+                            inhaltController.text);
                       },
                       child: const Text('Save',
                           style: TextStyle(color: Colors.white)),
@@ -466,8 +394,11 @@ class TopListViewState extends State<TopListView> {
                                   .withOpacity(0.5),
                               foregroundColor:
                                   Lib.darkTheme.textTheme.bodyMedium!.color),
-                          onPressed: () => showEditTop(tops[index].id,
-                              tops[index].name, tops[index].kind),
+                          onPressed: () => showEditTop(
+                              tops[index].id,
+                              tops[index].name,
+                              tops[index].kind,
+                              tops[index].inhalt),
                           child: const Text("EDIT"))),
                 ],
               ),
@@ -563,7 +494,7 @@ class TopListViewState extends State<TopListView> {
   }
 
   Future<void> editTop(
-      UuidValue topid, String dropdownValue, String text) async {
+      UuidValue topid, String dropdownValue, String name, String inhalt) async {
     final token = await OAuth.getToken(context);
     await http.patch(
         Uri.parse("https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/$topid/"),
@@ -571,10 +502,8 @@ class TopListViewState extends State<TopListView> {
           "Authorization": "Bearer $token",
           "Content-Type": "application/json; charset=UTF-8"
         },
-        body: jsonEncode({
-          "kind": dropdownValue,
-          "name": text,
-        }));
+        body: jsonEncode(
+            {"kind": dropdownValue, "name": name, "inhalt": inhalt}));
     setState(() {
       futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
       futureTops.then((tops) => {_contents = fetchTops(tops)});
