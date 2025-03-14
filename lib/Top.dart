@@ -1,5 +1,4 @@
 import 'package:sitzungsverwaltung_gui/Antrag.dart';
-import 'package:sitzungsverwaltung_gui/Person.dart';
 import 'package:uuid/uuid.dart';
 
 class Top {
@@ -7,13 +6,14 @@ class Top {
   final TopKind kind;
   final String name;
   final int weight;
+  final String inhalt;
 
-  const Top({
-    required this.kind,
-    required this.id,
-    required this.name,
-    required this.weight,
-  });
+  const Top(
+      {required this.kind,
+      required this.id,
+      required this.name,
+      required this.weight,
+      required this.inhalt});
 
   factory Top.fromJson(Map<String, dynamic> json) {
     return Top(
@@ -21,6 +21,7 @@ class Top {
       id: UuidValue.fromString(json['id']),
       name: json['name'] as String,
       weight: json['weight'] as int,
+      inhalt: json['inhalt'] as String,
     );
   }
 }
