@@ -33,7 +33,7 @@ class TopListViewState extends State<TopListView> {
   TopListViewState(this.sitzungsid, this.sitzung);
   late List<DragAndDropList> _contents;
   late Widget _contentsAntraege;
-  late Future<List<TopWithAntraege>> futureTops;
+  static late Future<List<TopWithAntraege>> futureTops;
 
   final nameController = TextEditingController();
   String dropdownValue = "normal";
@@ -59,6 +59,13 @@ class TopListViewState extends State<TopListView> {
   void dispose() {
     _debounceTimer?.cancel();
     super.dispose();
+  }
+
+  refreshTops() {
+    setState(() {
+      futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
+      futureTops.then((tops) => {_contents = fetchTops(tops)});
+    });
   }
 
   @override
@@ -392,6 +399,14 @@ class TopListViewState extends State<TopListView> {
                       child: const Text('Save',
                           style: TextStyle(color: Colors.white)),
                     ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        deleteTop(uuid);
+                      },
+                      child: const Text('Delete',
+                          style: TextStyle(color: Colors.red)),
+                    ),
                   ],
                 )
               ],
@@ -560,6 +575,21 @@ class TopListViewState extends State<TopListView> {
           "kind": dropdownValue,
           "name": text,
         }));
+    setState(() {
+      futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
+      futureTops.then((tops) => {_contents = fetchTops(tops)});
+    });
+  }
+
+  Future<void> deleteTop(UuidValue topid) async {
+    final token = await OAuth.getToken(context);
+    await http.delete(
+      Uri.parse("https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/$topid/"),
+      headers: {
+        "Authorization": "Bearer $token",
+        "Content-Type": "application/json; charset=UTF-8"
+      },
+    );
     setState(() {
       futureTops = Sitzung.fetchTopWithAntraege(sitzungsid);
       futureTops.then((tops) => {_contents = fetchTops(tops)});
