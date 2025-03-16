@@ -270,6 +270,7 @@ class TopListViewState extends State<TopListView> {
                     width: 300,
                     child: TextField(
                       controller: inhaltController,
+                      maxLines: 6,
                       style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
