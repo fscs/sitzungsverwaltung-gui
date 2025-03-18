@@ -13,7 +13,7 @@ flake-check:
 deploy:
   stage: deploy
   only: 
-    - main
+    - master
   variables:
     CI_NIX_UPDATE_INPUT: sitzungsverwaltung
   trigger:
