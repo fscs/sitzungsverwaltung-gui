@@ -42,7 +42,7 @@ class Antrag {
     for (var creator in json2['creators']) {
       persons.forEach((element) {
         if (element.id.toString() == creator) {
-          creators.add("${element.firstName} ${element.lastName}");
+          creators.add(element.fullName);
         }
       });
     }

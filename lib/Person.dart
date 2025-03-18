@@ -5,20 +5,17 @@ import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
 
 class Person {
-  final String firstName;
-  final String lastName;
+  final String fullName;
   final UuidValue id;
 
   const Person({
-    required this.firstName,
-    required this.lastName,
+    required this.fullName,
     required this.id,
   });
 
   factory Person.fromJson(Map<String, dynamic> json) {
     return Person(
-      firstName: json['first_name'] as String,
-      lastName: json['last_name'] as String,
+      fullName: json['full_name'] as String,
       id: UuidValue.fromString(json['id']),
     );
   }
@@ -31,7 +28,7 @@ class Person {
     if (response.statusCode == 200) {
       var person =
           Person.fromJson(json.decode(utf8.decode(response.bodyBytes)));
-      return "${person.firstName} ${person.lastName}";
+      return person.fullName;
     } else {
       throw Exception('Failed to load Person');
     }
