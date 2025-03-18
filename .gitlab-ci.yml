@@ -17,5 +17,5 @@ deploy:
   variables:
     CI_NIX_UPDATE_INPUT: sitzungsverwaltung
   trigger:
-    project: fscs/teenix
+    project: fscs/raete/teenix
     strategy: depend
