@@ -172,7 +172,7 @@ class Lib {
   static Future<String> getUsernameFromAccessToken(BuildContext context) async {
     final token = await OAuth.getToken(context);
     var jwt = parseJwt(token);
-    return jwt["preferred_username"];
+    return "authentik-" + jwt["sub"];
   }
 
   static Map<String, dynamic> parseJwt(String token) {
