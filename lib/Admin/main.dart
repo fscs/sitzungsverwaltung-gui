@@ -44,7 +44,9 @@ class AdminMainPageState extends State<AdminMainPage> {
   final locationController = TextEditingController();
   var date = DateTime.now();
   var antragsfristdate = DateTime.now();
-  String dropdownValue = "normal";
+  String dropdownValueKind = "normal";
+  String dropdownValueLegislatur = "";
+  UuidValue legislaturId = UuidValue("00000000-0000-0000-0000-000000000000");
 
   @override
   void initState() {
@@ -67,7 +69,7 @@ class AdminMainPageState extends State<AdminMainPage> {
   Widget build(BuildContext context) {
     date = DateTime.now();
     date = DateTime.now();
-    dropdownValue = "normal";
+    dropdownValueKind = "normal";
     locationController.text = "";
 
     return Scaffold(
@@ -114,8 +116,10 @@ class AdminMainPageState extends State<AdminMainPage> {
   }
 
   Future<void> addSitzung(String dropdownValue, DateTime date, String text,
-      DateTime antragsfristdate) async {
+      DateTime antragsfristdate, UuidValue legislaturId) async {
     final token = await OAuth.getToken(context);
+
+    print(legislaturId);
 
     await http.post(Uri.parse("https://fscs.hhu.de/api/sitzungen/"),
         headers: <String, String>{
@@ -126,7 +130,8 @@ class AdminMainPageState extends State<AdminMainPage> {
           "kind": dropdownValue,
           "location": text,
           "datetime": date.toUtc().toIso8601String(),
-          "antragsfrist": antragsfristdate.toUtc().toIso8601String()
+          "antragsfrist": antragsfristdate.toUtc().toIso8601String(),
+          "legislative_period": legislaturId.toString()
         }));
 
     setState(() {
@@ -139,7 +144,7 @@ class AdminMainPageState extends State<AdminMainPage> {
   showEditSitzungDialog(UuidValue id, DateTime datetime, String location,
       SitzungKind kind, DateTime antragsfristdate) {
     date = datetime;
-    dropdownValue = kind.name;
+    dropdownValueKind = kind.name;
     locationController.text = location;
 
     return showDialog<String>(
@@ -160,10 +165,10 @@ class AdminMainPageState extends State<AdminMainPage> {
                   const Text('Kind', style: TextStyle(color: Colors.white)),
                   const SizedBox(width: 10),
                   SizedBox(
-                    width: 300,
+                    width: 120,
                     child: DropdownButton<String>(
                       dropdownColor: Lib.darkTheme.colorScheme.surface,
-                      value: dropdownValue,
+                      value: dropdownValueKind,
                       icon: const Icon(
                         Icons.arrow_drop_down,
                         color: Colors.white,
@@ -183,11 +188,56 @@ class AdminMainPageState extends State<AdminMainPage> {
                       }).toList(),
                       onChanged: (value) {
                         setState(() {
-                          dropdownValue = value!;
+                          dropdownValueKind = value!;
                         });
                       },
                     ),
                   ),
+                  const Text('Legislatur',
+                      style: TextStyle(color: Colors.white)),
+                  const SizedBox(width: 10),
+                  FutureBuilder(
+                      future: fetchLegislaturen(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState != ConnectionState.done) {
+                          return const Text("Reloading");
+                        }
+                        if (snapshot.hasData) {
+                          return SizedBox(
+                            width: 120,
+                            child: DropdownButton<String>(
+                              value: dropdownValueLegislatur,
+                              dropdownColor: Lib.darkTheme.colorScheme.surface,
+                              icon: const Icon(
+                                Icons.arrow_drop_down,
+                                color: Colors.white,
+                              ),
+                              items: snapshot.data?.entries
+                                  .map<DropdownMenuItem<String>>(
+                                      (MapEntry<String, UuidValue> value) {
+                                return DropdownMenuItem<String>(
+                                  value: value.key,
+                                  child: Text(value.key,
+                                      style:
+                                          const TextStyle(color: Colors.white)),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  dropdownValueLegislatur = value!;
+                                  legislaturId =
+                                      UuidValue(snapshot.data![value]!.uuid);
+                                });
+                              },
+                            ),
+                          );
+                        }
+                        if (snapshot.hasError) {
+                          return Text('${snapshot.error}');
+                        }
+                        // By default, show a loading spinner.
+                        return const CircularProgressIndicator();
+                      }),
                 ]),
                 const SizedBox(height: 20),
                 Row(
@@ -329,7 +379,7 @@ class AdminMainPageState extends State<AdminMainPage> {
                     TextButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        editSitzung(id, dropdownValue, date,
+                        editSitzung(id, dropdownValueKind, date,
                             locationController.text, antragsfristdate);
                       },
                       child: const Text('Save',
@@ -458,7 +508,8 @@ class AdminMainPageState extends State<AdminMainPage> {
           "kind": dropdownValue,
           "location": text,
           "datetime": date.toUtc().toIso8601String(),
-          "antragsfrist": antragsfristdate.toUtc().toIso8601String()
+          "antragsfrist": antragsfristdate.toUtc().toIso8601String(),
+          "legislative_period": legislaturId.toString()
         }));
 
     setState(() {
@@ -470,7 +521,7 @@ class AdminMainPageState extends State<AdminMainPage> {
 
   showAddSitzungDialog() {
     date = DateTime.now();
-    dropdownValue = "normal";
+    dropdownValueKind = "normal";
     locationController.text = "";
     antragsfristdate = DateTime.now();
 
@@ -492,10 +543,10 @@ class AdminMainPageState extends State<AdminMainPage> {
                   const Text('Kind', style: TextStyle(color: Colors.white)),
                   const SizedBox(width: 10),
                   SizedBox(
-                    width: 300,
+                    width: 120,
                     child: DropdownButton<String>(
                       dropdownColor: Lib.darkTheme.colorScheme.surface,
-                      value: dropdownValue,
+                      value: dropdownValueKind,
                       icon: const Icon(
                         Icons.arrow_drop_down,
                         color: Colors.white,
@@ -515,11 +566,56 @@ class AdminMainPageState extends State<AdminMainPage> {
                       }).toList(),
                       onChanged: (value) {
                         setState(() {
-                          dropdownValue = value!;
+                          dropdownValueKind = value!;
                         });
                       },
                     ),
                   ),
+                  const Text('Legislatur',
+                      style: TextStyle(color: Colors.white)),
+                  const SizedBox(width: 10),
+                  FutureBuilder(
+                      future: fetchLegislaturen(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState != ConnectionState.done) {
+                          return const Text("Reloading");
+                        }
+                        if (snapshot.hasData) {
+                          return SizedBox(
+                            width: 120,
+                            child: DropdownButton<String>(
+                              value: dropdownValueLegislatur,
+                              dropdownColor: Lib.darkTheme.colorScheme.surface,
+                              icon: const Icon(
+                                Icons.arrow_drop_down,
+                                color: Colors.white,
+                              ),
+                              items: snapshot.data?.entries
+                                  .map<DropdownMenuItem<String>>(
+                                      (MapEntry<String, UuidValue> value) {
+                                return DropdownMenuItem<String>(
+                                  value: value.key,
+                                  child: Text(value.key,
+                                      style:
+                                          const TextStyle(color: Colors.white)),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  dropdownValueLegislatur = value!;
+                                  legislaturId =
+                                      UuidValue(snapshot.data![value]!.uuid);
+                                });
+                              },
+                            ),
+                          );
+                        }
+                        if (snapshot.hasError) {
+                          return Text('${snapshot.error}');
+                        }
+                        // By default, show a loading spinner.
+                        return const CircularProgressIndicator();
+                      }),
                 ]),
                 const SizedBox(height: 20),
                 Row(
@@ -568,6 +664,7 @@ class AdminMainPageState extends State<AdminMainPage> {
                         child: Text(DateFormat('HH:mm').format(date))),
                   ],
                 ),
+                const SizedBox(height: 20),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -649,8 +746,12 @@ class AdminMainPageState extends State<AdminMainPage> {
                     TextButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        addSitzung(dropdownValue, date, locationController.text,
-                            antragsfristdate);
+                        addSitzung(
+                            dropdownValueKind,
+                            date,
+                            locationController.text,
+                            antragsfristdate,
+                            legislaturId);
                       },
                       child: const Text('Save',
                           style: TextStyle(color: Colors.white)),
@@ -663,6 +764,28 @@ class AdminMainPageState extends State<AdminMainPage> {
         ),
       ),
     );
+  }
+
+  Future<Map<String, UuidValue>> fetchLegislaturen() async {
+    final response = await http.get(
+        Uri.parse("https://fscs.hhu.de/api/legislative"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        });
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      Map<String, UuidValue> map = {};
+      for (var item in data) {
+        map[item['name']] = UuidValue(item['id']);
+      }
+      setState(() {
+        dropdownValueLegislatur = map.keys.first;
+        legislaturId = map.values.first;
+      });
+      return map;
+    } else {
+      throw Exception('Failed to load legislaturen');
+    }
   }
 
   Future<void> deleteSitzung(UuidValue id) async {
