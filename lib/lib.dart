@@ -141,8 +141,6 @@ class Lib {
       TextEditingController antragstextController,
       BuildContext context) async {
     final token = await OAuth.getToken(context);
-    var username = await getUsernameFromAccessToken(context);
-    final antragsteller = await getIDByUsername(username, context);
     await http.post(Uri.parse("https://fscs.hhu.de/api/anträge/"),
         headers: {
           "Authorization": "Bearer $token",
@@ -152,7 +150,6 @@ class Lib {
           "titel": titleController.text,
           "begründung": begruendungController.text,
           "antragstext": antragstextController.text,
-          "antragssteller": [antragsteller.toString()]
         }));
   }
 
