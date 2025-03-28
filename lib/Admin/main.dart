@@ -42,8 +42,8 @@ class AdminMainPageState extends State<AdminMainPage> {
   late List<Widget> _contents;
   late Future<List<Sitzung>> futureSitzung;
   final locationController = TextEditingController();
-  var date = DateTime.now();
-  var antragsfristdate = DateTime.now();
+  late DateTime date;
+  late DateTime antragsfristdate;
   String dropdownValueKind = "normal";
   String dropdownValueLegislatur = "";
   UuidValue legislaturId = UuidValue("00000000-0000-0000-0000-000000000000");
@@ -53,6 +53,9 @@ class AdminMainPageState extends State<AdminMainPage> {
     super.initState();
 
     tz.initializeTimeZones();
+
+    date = DateTime.now();
+    antragsfristdate = DateTime.now();
 
     futureSitzung = Sitzung.fetchSitzungen();
     futureSitzung.then((sitzungen) => {_contents = fetchSitzungen(sitzungen)});
@@ -257,7 +260,12 @@ class AdminMainPageState extends State<AdminMainPage> {
                                   if (selectedDate != null)
                                     {
                                       setState(() {
-                                        date = selectedDate;
+                                        date = DateTime(
+                                            selectedDate.year,
+                                            selectedDate.month,
+                                            selectedDate.day,
+                                            date.hour,
+                                            date.minute);
                                       })
                                     }
                                 }),
@@ -312,7 +320,12 @@ class AdminMainPageState extends State<AdminMainPage> {
                                   if (selectedDate != null)
                                     {
                                       setState(() {
-                                        antragsfristdate = selectedDate;
+                                        antragsfristdate = DateTime(
+                                            selectedDate.year,
+                                            selectedDate.month,
+                                            selectedDate.day,
+                                            antragsfristdate.hour,
+                                            antragsfristdate.minute);
                                       })
                                     }
                                 }),
@@ -634,7 +647,12 @@ class AdminMainPageState extends State<AdminMainPage> {
                                   if (selectedDate != null)
                                     {
                                       setState(() {
-                                        date = selectedDate;
+                                        date = DateTime(
+                                            selectedDate.year,
+                                            selectedDate.month,
+                                            selectedDate.day,
+                                            date.hour,
+                                            date.minute);
                                       })
                                     }
                                 }),

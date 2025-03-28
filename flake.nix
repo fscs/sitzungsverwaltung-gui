@@ -49,18 +49,6 @@
             pkgs.libsecret.dev
             pkgs.gtk3.dev
           ]}";
-
-          # Globally installed packages, which are installed through `dart pub global activate package_name`,
-          # are located in the `$PUB_CACHE/bin` directory.
-          shellHook = ''
-            if [ -v PUB_CACHE ] && [ -n "$PUB_CACHE" ]; then
-              export PATH="$PATH:$PUB_CACHE/bin"
-            else
-              export PATH="$PATH:$HOME/.pub-cache/bin"
-            fi
-
-            dart pub global activate protoc_plugin
-          '';
         };
 
         packages = {
