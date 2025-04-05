@@ -8,6 +8,8 @@ import 'package:sitzungsverwaltung_gui/lib.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
 void main() {
+  tz.initializeTimeZones();
+
   runApp(const Sitzungsverwaltung());
 }
 
@@ -35,16 +37,10 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  late List<Widget> _contents;
   late Future<List<Sitzung>> futureSitzung;
   final locationController = TextEditingController();
   var date = DateTime.now();
   String dropdownValue = "normal";
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   void dispose() {
@@ -78,9 +74,7 @@ class _MainPageState extends State<MainPage> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const AdminMainPage(
-                                  title: 'Admin',
-                                )));
+                            builder: (context) => const AdminPage()));
                   } else {
                     showDialog(
                         context: context,
@@ -98,7 +92,7 @@ class _MainPageState extends State<MainPage> {
               onPressed: () {
                 Lib.showCreateAntrag(context);
               },
-              child: Text("Antrag Einreichen")),
+              child: const Text("Antrag Einreichen")),
         ),
       ),
     );

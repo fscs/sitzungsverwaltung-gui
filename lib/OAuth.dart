@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:flutter/widgets.dart';
 import 'package:openidconnect/openidconnect.dart';
 import 'dart:html';
@@ -54,14 +52,20 @@ class OAuth {
             "client_secret":
                 "blQAuvzKYitqWmroablLj2ksi6epvoho7Pn8Z46nuNUhki2cBv4iSoOBIa0or3N4Nh6Hka1brqaZwinY56wePnYn7A08p0DFkFXKRlMItvRslNvzeNRLVUumNaEHJElS"
           });
+
       final json = res.body;
+
       if (res.statusCode != 200) {
         document.cookie = "refresh_token=; path=/";
+
         return getToken(context);
       }
+
       final accessToken = json.split('"access_token": "')[1].split('"')[0];
+
       document.cookie =
           "refresh_token=${json.split('"refresh_token": "')[1].split('"')[0]}; path=/";
+
       return accessToken;
     }
 
