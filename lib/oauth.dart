@@ -1,9 +1,13 @@
 import 'package:flutter/widgets.dart';
 import 'package:openidconnect/openidconnect.dart';
+// ignore: avoid_web_libraries_in_flutter
 import 'dart:html';
 import 'package:http/http.dart' as http;
 
 class OAuth {
+  static final Uri tokenUrl =
+      Uri.parse(const String.fromEnvironment("OAUTH_TOKEN_URL"));
+
   static Future<String> refreshToken() async {
     final cookie = document.cookie!;
 
@@ -14,21 +18,24 @@ class OAuth {
         .map((e) => e.substring("refresh_token=".length))
         .firstWhere((e) => true, orElse: () => "");
 
-    var res = await http
-        .post(Uri.parse("https://auth.inphima.de/application/o/token/"), body: {
+    var res = await http.post(tokenUrl, body: {
       "grant_type": "refresh_token",
       "refresh_token": token,
-      "client_id": "cZgfgWqx4h1Mn0jhLgUem6vS6m3zFvPwtIcOSyDg",
-      "client_secret":
-          "blQAuvzKYitqWmroablLj2ksi6epvoho7Pn8Z46nuNUhki2cBv4iSoOBIa0or3N4Nh6Hka1brqaZwinY56wePnYn7A08p0DFkFXKRlMItvRslNvzeNRLVUumNaEHJElS"
+      "client_id": const String.fromEnvironment("OAUTH_CLIENT_ID"),
+      "client_secret": const String.fromEnvironment("OAUTH_CLIENT_SECRET")
     });
+
     final json = res.body;
+
     if (res.statusCode != 200) {
       document.cookie = "refresh_token=; path=/";
     }
+
     final accessToken = json.split('"access_token": "')[1].split('"')[0];
+
     document.cookie =
         "refresh_token=${json.split('"refresh_token": "')[1].split('"')[0]}; path=/";
+
     return accessToken;
   }
 
@@ -43,15 +50,12 @@ class OAuth {
         .firstWhere((e) => true, orElse: () => "");
 
     if (token.isNotEmpty) {
-      var res = await http.post(
-          Uri.parse("https://auth.inphima.de/application/o/token/"),
-          body: {
-            "grant_type": "refresh_token",
-            "refresh_token": token,
-            "client_id": "cZgfgWqx4h1Mn0jhLgUem6vS6m3zFvPwtIcOSyDg",
-            "client_secret":
-                "blQAuvzKYitqWmroablLj2ksi6epvoho7Pn8Z46nuNUhki2cBv4iSoOBIa0or3N4Nh6Hka1brqaZwinY56wePnYn7A08p0DFkFXKRlMItvRslNvzeNRLVUumNaEHJElS"
-          });
+      var res = await http.post(tokenUrl, body: {
+        "grant_type": "refresh_token",
+        "refresh_token": token,
+        "client_id": const String.fromEnvironment("OAUTH_CLIENT_ID"),
+        "client_secret": const String.fromEnvironment("OAUTH_CLIENT_SECRET"),
+      });
 
       final json = res.body;
 
@@ -74,18 +78,16 @@ class OAuth {
       context: context,
       title: "SSO Login",
       request: await InteractiveAuthorizationRequest.create(
-          clientId: "cZgfgWqx4h1Mn0jhLgUem6vS6m3zFvPwtIcOSyDg",
-          clientSecret:
-              "blQAuvzKYitqWmroablLj2ksi6epvoho7Pn8Z46nuNUhki2cBv4iSoOBIa0or3N4Nh6Hka1brqaZwinY56wePnYn7A08p0DFkFXKRlMItvRslNvzeNRLVUumNaEHJElS",
+          clientId: const String.fromEnvironment("OAUTH_CLIENT_ID"),
+          clientSecret: const String.fromEnvironment("OAUTH_CLIENT_SECRET"),
           redirectUrl: "${Uri.base.origin}/callback.html",
           scopes: ["openid", "profile", "offline_access"],
           configuration: OpenIdConfiguration(
-            issuer: "https://auth.inphima.de/application/o/fscs-website/",
-            jwksUri: "https://auth.inphima.de/application/o/fscs-website/jwks/",
-            authorizationEndpoint:
-                "https://auth.inphima.de/application/o/authorize/",
-            tokenEndpoint: "https://auth.inphima.de/application/o/token/",
-            userInfoEndpoint: "https://auth.inphima.de/application/o/userinfo/",
+            issuer: const String.fromEnvironment("OAUTH_ISSUER_URL"),
+            jwksUri: const String.fromEnvironment("OAUTH_JWKS_URL"),
+            authorizationEndpoint: const String.fromEnvironment("OAUTH_AUTH_URL"),
+            tokenEndpoint: const String.fromEnvironment("OAUTH_TOKEN_URL"),
+            userInfoEndpoint: const String.fromEnvironment("OAUTH_USERINFO_URL"),
             requestUriParameterSupported: false,
             document: {
               "response_types_supported": ["code"]

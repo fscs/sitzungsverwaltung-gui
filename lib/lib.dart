@@ -5,10 +5,10 @@ import 'package:http/http.dart' as http;
 import 'package:drag_and_drop_lists/drag_and_drop_list_interface.dart';
 import 'package:drag_and_drop_lists/drag_and_drop_lists.dart';
 import 'package:flutter/material.dart';
-import 'package:sitzungsverwaltung_gui/Antrag.dart';
-import 'package:sitzungsverwaltung_gui/OAuth.dart';
-import 'package:sitzungsverwaltung_gui/Sitzung.dart';
-import 'package:sitzungsverwaltung_gui/Top.dart';
+import 'package:sitzungsverwaltung_gui/antrag.dart';
+import 'package:sitzungsverwaltung_gui/oauth.dart';
+import 'package:sitzungsverwaltung_gui/sitzung.dart';
+import 'package:sitzungsverwaltung_gui/top.dart';
 import 'package:uuid/uuid_value.dart';
 
 class Lib {

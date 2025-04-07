@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:sitzungsverwaltung_gui/OAuth.dart';
-import 'package:sitzungsverwaltung_gui/Sitzung.dart';
+import 'package:sitzungsverwaltung_gui/oauth.dart';
+import 'package:sitzungsverwaltung_gui/sitzung.dart';
 import 'package:uuid/uuid.dart';
 
 Future<Sitzung> createSitzung(

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:sitzungsverwaltung_gui/Sitzung.dart';
+import 'package:sitzungsverwaltung_gui/sitzung.dart';
 import 'package:sitzungsverwaltung_gui/Admin/SitzungView.dart';
 import 'package:intl/intl.dart';
 import 'package:sitzungsverwaltung_gui/lib.dart';

@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:sitzungsverwaltung_gui/Admin/SitzungView.dart';
 import 'package:sitzungsverwaltung_gui/Admin/main.dart';
-import 'package:sitzungsverwaltung_gui/OAuth.dart';
-import 'package:sitzungsverwaltung_gui/Sitzung.dart';
+import 'package:sitzungsverwaltung_gui/oauth.dart';
+import 'package:sitzungsverwaltung_gui/sitzung.dart';
 import 'package:sitzungsverwaltung_gui/lib.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
 void main() {
   tz.initializeTimeZones();
+
+  print(const String.fromEnvironment("OAUTH_CLIENT_ID"));
+  print(const String.fromEnvironment("OAUTH_ISSUER_URL"));
+  print(const String.fromEnvironment("OAUTH_AUTH_URL"));
 
   runApp(const Sitzungsverwaltung());
 }

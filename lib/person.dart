@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:sitzungsverwaltung_gui/OAuth.dart';
+import 'package:sitzungsverwaltung_gui/oauth.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
 

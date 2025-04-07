@@ -6,7 +6,11 @@ flutter.buildFlutterApplication {
 
   pubspecLock = lib.importJSON ./pubspec.lock.json;
   targetFlutterPlatform = "web";
-  flutterBuildFlags = [ "--release" ];
+  flutterBuildFlags = [
+    "--release"
+    "--dart-define-from-file"
+    "config.json"
+  ];
 
   meta = { };
 }

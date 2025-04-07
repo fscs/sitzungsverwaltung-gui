@@ -54,7 +54,11 @@
         packages = {
           default = pkgs.callPackage ./default.nix { };
           run = pkgs.writers.writeBashBin "run-flutter-app" ''
-            ${lib.getExe' pkgs.flutter "flutter"} run -d chrome --web-browser-flag "--disable-web-security" --web-port=8080
+            ${lib.getExe' pkgs.flutter "flutter"} run \
+              --dart-define-from-file config.json \
+              -d chrome \
+              --web-browser-flag --disable-web-security \
+              --web-port=8080
           '';
         };
 

@@ -8,10 +8,10 @@ import 'package:drag_and_drop_lists/drag_and_drop_lists.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sitzungsverwaltung_gui/Admin/TopsList.dart';
-import 'package:sitzungsverwaltung_gui/Antrag.dart';
-import 'package:sitzungsverwaltung_gui/OAuth.dart';
-import 'package:sitzungsverwaltung_gui/Sitzung.dart';
-import 'package:sitzungsverwaltung_gui/Top.dart';
+import 'package:sitzungsverwaltung_gui/antrag.dart';
+import 'package:sitzungsverwaltung_gui/oauth.dart';
+import 'package:sitzungsverwaltung_gui/sitzung.dart';
+import 'package:sitzungsverwaltung_gui/top.dart';
 import 'package:sitzungsverwaltung_gui/lib.dart';
 import 'package:uuid/uuid_value.dart';
 
