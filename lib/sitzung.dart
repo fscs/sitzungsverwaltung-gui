@@ -22,15 +22,15 @@ class Sitzung {
     required this.legislaturPeriode,
   });
 
-  static Future<Sitzung> buildFromJson(Map<String, dynamic> json) async {
+  factory Sitzung.fromJson(Map<String, dynamic> json) {
     return Sitzung(
         kind: SitzungKind.values.byName(json['kind']),
         id: UuidValue.fromString(json['id']),
         datetime: DateTime.parse(json['datetime']),
         location: json['location'] as String,
         antragsfrist: DateTime.parse(json['antragsfrist']),
-        legislaturPeriode: await LegislaturPeriode.fetch(
-            UuidValue.fromString(json['legislative_period_id'])));
+        legislaturPeriode:
+            LegislaturPeriode.fromJson(json['legislative_period']));
   }
 
   static Future<List<Sitzung>> fetchSitzungen() async {
@@ -45,8 +45,7 @@ class Sitzung {
             .compareTo(DateTime.parse(a['datetime']));
       });
 
-      List<Sitzung> sitzungen =
-          await Future.wait(list.map((i) => Sitzung.buildFromJson(i)));
+      List<Sitzung> sitzungen = list.map((i) => Sitzung.fromJson(i)).toList();
 
       return sitzungen;
     } else {
@@ -85,17 +84,6 @@ class LegislaturPeriode {
   factory LegislaturPeriode.fromJson(Map<String, dynamic> json) {
     return LegislaturPeriode(
         id: UuidValue.fromString(json['id']), name: json['name'] as String);
-  }
-
-  static Future<LegislaturPeriode> fetch(UuidValue id) async {
-    final response = await http
-        .get(Uri.parse('https://fscs.hhu.de/api/legislative-periods/$id'));
-
-    if (response.statusCode == 200) {
-      return LegislaturPeriode.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to load legislatur periode');
-    }
   }
 
   static Future<List<LegislaturPeriode>> fetchLegislaturPerioden() async {
