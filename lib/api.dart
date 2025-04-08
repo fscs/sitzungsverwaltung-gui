@@ -30,7 +30,7 @@ Future<Sitzung> createSitzung(
           }));
 
   if (response.statusCode >= 201) {
-    return json.decode(response.body) as Sitzung;
+    return json.decode(utf8.decode(response.bodyBytes)) as Sitzung;
   } else {
     throw Exception('Failed to create Sitzung');
   }
@@ -60,7 +60,7 @@ Future<Sitzung> updateSitzung(
       }));
 
   if (response.statusCode == 200) {
-    return json.decode(response.body) as Sitzung;
+    return json.decode(utf8.decode(response.bodyBytes)) as Sitzung;
   } else {
     throw Exception('Failed to update Sitzung');
   }

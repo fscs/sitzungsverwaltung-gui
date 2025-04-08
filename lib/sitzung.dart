@@ -38,7 +38,7 @@ class Sitzung {
         await http.get(Uri.parse('https://fscs.hhu.de/api/sitzungen/'));
 
     if (response.statusCode == 200) {
-      var list = json.decode(response.body) as List;
+      var list = json.decode(utf8.decode(response.bodyBytes)) as List;
 
       list.sort((a, b) {
         return DateTime.parse(b['datetime'])
@@ -58,7 +58,7 @@ class Sitzung {
         await http.get(Uri.parse('https://fscs.hhu.de/api/sitzungen/$uuid/'));
 
     if (response.statusCode == 200) {
-      var list = json.decode(response.body)['tops'] as List;
+      var list = json.decode(utf8.decode(response.bodyBytes))['tops'] as List;
 
       List<TopWithAntraege> tops = [];
       for (var i in list) {
@@ -91,7 +91,7 @@ class LegislaturPeriode {
         .get(Uri.parse('https://fscs.hhu.de/api/legislative-periods/'));
 
     if (response.statusCode == 200) {
-      var list = json.decode(response.body) as List;
+      var list = json.decode(utf8.decode(response.bodyBytes)) as List;
 
       List<LegislaturPeriode> periods =
           list.map((i) => LegislaturPeriode.fromJson(i)).toList();

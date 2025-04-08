@@ -10,10 +10,6 @@ import 'package:timezone/data/latest.dart' as tz;
 void main() {
   tz.initializeTimeZones();
 
-  print(const String.fromEnvironment("OAUTH_CLIENT_ID"));
-  print(const String.fromEnvironment("OAUTH_ISSUER_URL"));
-  print(const String.fromEnvironment("OAUTH_AUTH_URL"));
-
   runApp(const Sitzungsverwaltung());
 }
 

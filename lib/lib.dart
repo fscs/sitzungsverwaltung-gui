@@ -160,7 +160,7 @@ class Lib {
         Uri.parse("https://fscs.hhu.de/api/persons/by-username/$username"),
         headers: {"Authorization": "Bearer $token"});
     if (response.statusCode == 200) {
-      return UuidValue.fromString(jsonDecode(response.body)["id"]);
+      return UuidValue.fromString(jsonDecode(utf8.decode(response.bodyBytes))["id"]);
     } else {
       throw Exception('Failed to load ID');
     }
