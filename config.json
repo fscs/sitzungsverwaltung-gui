@@ -6,5 +6,6 @@
   "OAUTH_TOKEN_URL": "https://auth.inphima.de/application/o/token/",
   "OAUTH_USERINFO_URL": "https://auth.inphima.de/application/o/userinfo/",
   "OAUTH_ISSUER_URL": "https://auth.inphima.de/application/o/fscs-website/",
-  "OAUTH_JWKS_URL": "https://auth.inphima.de/application/o/fscs-website/jwks/"
+  "OAUTH_JWKS_URL": "https://auth.inphima.de/application/o/fscs-website/jwks/",
+    "API_BASE_URL": "https://fscs.hhu.de/"
 }

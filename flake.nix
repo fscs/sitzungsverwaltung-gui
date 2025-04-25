@@ -52,7 +52,7 @@
         };
 
         packages = {
-          default = pkgs.callPackage ./default.nix { };
+          default = (pkgs.callPackage ./package.nix { });
           run = pkgs.writers.writeBashBin "run-flutter-app" ''
             ${lib.getExe' pkgs.flutter "flutter"} run \
               --dart-define-from-file config.json \

@@ -16,7 +16,7 @@ Future<Sitzung> createSitzung(
   final token = await OAuth.getToken(context);
 
   var response =
-      await http.post(Uri.parse("https://fscs.hhu.de/api/sitzungen/"),
+      await http.post(Uri.parse("${const String.fromEnvironment("API_BASE_URL")}api/sitzungen/"),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token',
@@ -46,7 +46,7 @@ Future<Sitzung> updateSitzung(
     UuidValue legislaturId) async {
   final token = await OAuth.getToken(context);
 
-  var response = await http.patch(Uri.parse("https://fscs.hhu.de/api/sitzungen/$id/"),
+  var response = await http.patch(Uri.parse("${const String.fromEnvironment("API_BASE_URL")}api/sitzungen/$id/"),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer $token',
@@ -68,7 +68,7 @@ Future<Sitzung> updateSitzung(
 
 Future<void> deleteSitzung(BuildContext context, UuidValue id) async {
   final token = await OAuth.getToken(context);
-  await http.delete(Uri.parse("https://fscs.hhu.de/api/sitzungen/$id/"),
+  await http.delete(Uri.parse("${const String.fromEnvironment("API_BASE_URL")}api/sitzungen/$id/"),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer $token',

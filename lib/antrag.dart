@@ -29,7 +29,7 @@ class Antrag {
 
     if (persons.isEmpty) {
       var response =
-          await http.get(Uri.parse('https://fscs.hhu.de/api/persons/'));
+          await http.get(Uri.parse('${const String.fromEnvironment("API_BASE_URL")}api/persons/'));
       if (response.statusCode == 200) {
         var list = json.decode(utf8.decode(response.bodyBytes)) as List;
         for (var person in list) {
@@ -72,10 +72,10 @@ class Antrag {
     var search = AntragsListViewState.antragsSearchController.value.text;
     var response;
     if (all) {
-      response = await http.get(Uri.parse('https://fscs.hhu.de/api/anträge/'));
+      response = await http.get(Uri.parse('${const String.fromEnvironment("API_BASE_URL")}api/anträge/'));
     } else {
       response =
-          await http.get(Uri.parse('https://fscs.hhu.de/api/anträge/orphans/'));
+          await http.get(Uri.parse('${const String.fromEnvironment("API_BASE_URL")}api/anträge/orphans/'));
     }
 
     if (response.statusCode == 200) {

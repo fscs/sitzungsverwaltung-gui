@@ -99,7 +99,7 @@ class SitzungsViewState extends State<SitzungView> {
   Future<void> addTop(String dropdownValue, String name, String inhalt) async {
     final token = await OAuth.getToken(context);
     await http.post(
-        Uri.parse("https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/"),
+        Uri.parse("${const String.fromEnvironment("API_BASE_URL")}api/sitzungen/$sitzungsid/tops/"),
         headers: {
           "Authorization": "Bearer $token",
           "Content-Type": "application/json; charset=UTF-8"

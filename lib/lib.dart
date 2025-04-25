@@ -141,7 +141,7 @@ class Lib {
       TextEditingController antragstextController,
       BuildContext context) async {
     final token = await OAuth.getToken(context);
-    await http.post(Uri.parse("https://fscs.hhu.de/api/anträge/"),
+    await http.post(Uri.parse("${const String.fromEnvironment("API_BASE_URL")}api/anträge/"),
         headers: {
           "Authorization": "Bearer $token",
           "Content-Type": "application/json; charset=UTF-8"
@@ -157,7 +157,7 @@ class Lib {
       username, BuildContext context) async {
     final token = await OAuth.getToken(context);
     var response = await http.get(
-        Uri.parse("https://fscs.hhu.de/api/persons/by-username/$username"),
+        Uri.parse("${const String.fromEnvironment("API_BASE_URL")}api/persons/by-username/$username"),
         headers: {"Authorization": "Bearer $token"});
     if (response.statusCode == 200) {
       return UuidValue.fromString(jsonDecode(utf8.decode(response.bodyBytes))["id"]);

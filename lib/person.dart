@@ -23,7 +23,7 @@ class Person {
   static Future<String> fetchPersonNameByUuid(String uuid) async {
     final token = await OAuth.refreshToken();
     var response = await http.get(
-        Uri.parse("https://fscs.hhu.de/api/persons/$uuid"),
+        Uri.parse("${const String.fromEnvironment("API_BASE_URL")}persons/$uuid"),
         headers: {"Authorization": "Bearer $token"});
     if (response.statusCode == 200) {
       var person =

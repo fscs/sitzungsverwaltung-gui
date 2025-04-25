@@ -35,7 +35,7 @@ class Sitzung {
 
   static Future<List<Sitzung>> fetchSitzungen() async {
     final response =
-        await http.get(Uri.parse('https://fscs.hhu.de/api/sitzungen/'));
+        await http.get(Uri.parse('${const String.fromEnvironment("API_BASE_URL")}api/sitzungen/'));
 
     if (response.statusCode == 200) {
       var list = json.decode(utf8.decode(response.bodyBytes)) as List;
@@ -55,7 +55,7 @@ class Sitzung {
 
   static Future<List<TopWithAntraege>> fetchTopWithAntraege(uuid) async {
     final response =
-        await http.get(Uri.parse('https://fscs.hhu.de/api/sitzungen/$uuid/'));
+        await http.get(Uri.parse('${const String.fromEnvironment("API_BASE_URL")}api/sitzungen/$uuid/'));
 
     if (response.statusCode == 200) {
       var list = json.decode(utf8.decode(response.bodyBytes))['tops'] as List;
@@ -88,7 +88,7 @@ class LegislaturPeriode {
 
   static Future<List<LegislaturPeriode>> fetchLegislaturPerioden() async {
     final response = await http
-        .get(Uri.parse('https://fscs.hhu.de/api/legislative-periods/'));
+        .get(Uri.parse('${const String.fromEnvironment("API_BASE_URL")}api/legislative-periods/'));
 
     if (response.statusCode == 200) {
       var list = json.decode(utf8.decode(response.bodyBytes)) as List;

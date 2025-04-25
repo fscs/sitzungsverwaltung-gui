@@ -185,13 +185,13 @@ class AntragsListViewState extends State<AntragsListView> {
 
     await http.delete(
         Uri.parse(
-            "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/$topOld/assoc/"),
+            "${const String.fromEnvironment("API_BASE_URL")}api/sitzungen/$sitzungsid/tops/$topOld/assoc/"),
         headers: {"Authorization": "Bearer $token"},
         body: jsonEncode({"antrag_id": "$antrag"}));
 
     await http.patch(
         Uri.parse(
-            "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/$topNew/assoc/"),
+            "${const String.fromEnvironment("API_BASE_URL")}api/sitzungen/$sitzungsid/tops/$topNew/assoc/"),
         headers: {"Authorization": "Bearer $token"},
         body: jsonEncode({"antrag_id": "$antrag"}));
   }
@@ -207,7 +207,7 @@ class AntragsListViewState extends State<AntragsListView> {
 
       await http.patch(
           Uri.parse(
-              "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/${top.id}/"),
+              "${const String.fromEnvironment("API_BASE_URL")}api/sitzungen/$sitzungsid/tops/${top.id}/"),
           headers: {
             "Authorization": "Bearer $token",
             "Content-Type": "application/json; charset=UTF-8"
@@ -223,7 +223,7 @@ class AntragsListViewState extends State<AntragsListView> {
   Future<void> addTop(String dropdownValue, String text) async {
     final token = await OAuth.getToken(context);
     await http.post(
-        Uri.parse("https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/"),
+        Uri.parse("${const String.fromEnvironment("API_BASE_URL")}api/sitzungen/$sitzungsid/tops/"),
         headers: {
           "Authorization": "Bearer $token",
           "Content-Type": "application/json; charset=UTF-8"
@@ -428,7 +428,7 @@ class AntragsListViewState extends State<AntragsListView> {
     final token = await OAuth.getToken(context);
     var username = await Lib.getUsernameFromAccessToken(context);
     final antragsteller = await Lib.getIDByUsername(username, context);
-    await http.post(Uri.parse("https://fscs.hhu.de/api/anträge/"),
+    await http.post(Uri.parse("${const String.fromEnvironment("API_BASE_URL")}api/anträge/"),
         headers: {
           "Authorization": "Bearer $token",
           "Content-Type": "application/json; charset=UTF-8"
@@ -454,7 +454,7 @@ class AntragsListViewState extends State<AntragsListView> {
     final token = await OAuth.getToken(context);
     await http.patch(
         Uri.parse(
-            "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/$top/assoc/"),
+            "${const String.fromEnvironment("API_BASE_URL")}api/sitzungen/$sitzungsid/tops/$top/assoc/"),
         headers: {"Authorization": "Bearer $token"},
         body: jsonEncode({"antrag_id": "$antragId"}));
 
@@ -814,7 +814,7 @@ class AntragsListViewState extends State<AntragsListView> {
       UuidValue topid, String dropdownValue, String text) async {
     final token = await OAuth.getToken(context);
     await http.patch(
-        Uri.parse("https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/$topid/"),
+        Uri.parse("${const String.fromEnvironment("API_BASE_URL")}api/sitzungen/$sitzungsid/tops/$topid/"),
         headers: {
           "Authorization": "Bearer $token",
           "Content-Type": "application/json; charset=UTF-8"
@@ -832,7 +832,7 @@ class AntragsListViewState extends State<AntragsListView> {
   Future<void> editAntrag(UuidValue antragid, String titel, String begruendung,
       String antragstext) async {
     final token = await OAuth.getToken(context);
-    await http.patch(Uri.parse("https://fscs.hhu.de/api/anträge/$antragid/"),
+    await http.patch(Uri.parse("${const String.fromEnvironment("API_BASE_URL")}api/anträge/$antragid/"),
         headers: {
           "Authorization": "Bearer $token",
           "Content-Type": "application/json; charset=UTF-8"
@@ -979,7 +979,7 @@ class AntragsListViewState extends State<AntragsListView> {
   Future<void> deleteAntrag(UuidValue id) async {
     final token = await OAuth.getToken(context);
     await http
-        .delete(Uri.parse("https://fscs.hhu.de/api/anträge/$id/"), headers: {
+        .delete(Uri.parse("${const String.fromEnvironment("API_BASE_URL")}api/anträge/$id/"), headers: {
       "Authorization": "Bearer $token",
       "Content-Type": "application/json; charset=UTF-8"
     });
@@ -997,7 +997,7 @@ class AntragsListViewState extends State<AntragsListView> {
     final token = await OAuth.getToken(context);
     await http.delete(
         Uri.parse(
-            "https://fscs.hhu.de/api/sitzungen/$sitzungsid/tops/$topid/assoc/"),
+            "${const String.fromEnvironment("API_BASE_URL")}api/sitzungen/$sitzungsid/tops/$topid/assoc/"),
         headers: {
           "Authorization": "Bearer $token",
           "Content-Type": "application/json; charset=UTF-8"

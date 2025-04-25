@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:sitzungsverwaltung_gui/Admin/SitzungView.dart';
 import 'package:sitzungsverwaltung_gui/Admin/main.dart';
 import 'package:sitzungsverwaltung_gui/oauth.dart';
 import 'package:sitzungsverwaltung_gui/sitzung.dart';
@@ -22,7 +21,19 @@ class Sitzungsverwaltung extends StatelessWidget {
       builder: (context, child) => MediaQuery(
           data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
           child: child!),
-      home: const MainPage(title: 'Main'),
+      home: FutureBuilder(
+          future: OAuth.getToken(context),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return const MainPage(title: "Sitzungen FS Informatik");
+            }
+
+            if (snapshot.hasError) {
+              return Text('${snapshot.error}');
+            }
+            // By default, show a loading spinner.
+            return const CircularProgressIndicator();
+          }),
       debugShowCheckedModeBanner: false,
     );
   }
