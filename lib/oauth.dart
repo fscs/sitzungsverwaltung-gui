@@ -79,15 +79,16 @@ class OAuth {
       title: "SSO Login",
       request: await InteractiveAuthorizationRequest.create(
           clientId: const String.fromEnvironment("OAUTH_CLIENT_ID"),
-          clientSecret: const String.fromEnvironment("OAUTH_CLIENT_SECRET"),
           redirectUrl: "${Uri.base.origin}/callback.html",
           scopes: ["openid", "profile", "offline_access"],
           configuration: OpenIdConfiguration(
             issuer: const String.fromEnvironment("OAUTH_ISSUER_URL"),
             jwksUri: const String.fromEnvironment("OAUTH_JWKS_URL"),
-            authorizationEndpoint: const String.fromEnvironment("OAUTH_AUTH_URL"),
+            authorizationEndpoint:
+                const String.fromEnvironment("OAUTH_AUTH_URL"),
             tokenEndpoint: const String.fromEnvironment("OAUTH_TOKEN_URL"),
-            userInfoEndpoint: const String.fromEnvironment("OAUTH_USERINFO_URL"),
+            userInfoEndpoint:
+                const String.fromEnvironment("OAUTH_USERINFO_URL"),
             requestUriParameterSupported: false,
             document: {
               "response_types_supported": ["code"]

@@ -1,5 +1,4 @@
 {
-  "OAUTH_CLIENT_SECRET": "blQAuvzKYitqWmroablLj2ksi6epvoho7Pn8Z46nuNUhki2cBv4iSoOBIa0or3N4Nh6Hka1brqaZwinY56wePnYn7A08p0DFkFXKRlMItvRslNvzeNRLVUumNaEHJElS",
   "OAUTH_CLIENT_ID": "cZgfgWqx4h1Mn0jhLgUem6vS6m3zFvPwtIcOSyDg",
 
   "OAUTH_AUTH_URL": "https://auth.inphima.de/application/o/authorize/",
@@ -7,5 +6,5 @@
   "OAUTH_USERINFO_URL": "https://auth.inphima.de/application/o/userinfo/",
   "OAUTH_ISSUER_URL": "https://auth.inphima.de/application/o/fscs-website/",
   "OAUTH_JWKS_URL": "https://auth.inphima.de/application/o/fscs-website/jwks/",
-    "API_BASE_URL": "https://fscs.hhu.de/"
+  "API_BASE_URL": "https://fscs.hhu.de/"
 }
