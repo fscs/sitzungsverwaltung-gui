@@ -24,13 +24,13 @@ class Sitzung {
 
   factory Sitzung.fromJson(Map<String, dynamic> json) {
     return Sitzung(
-        kind: SitzungKind.values.byName(json['kind']),
+        kind: SitzungKind.values.byName(json['typ']),
         id: UuidValue.fromString(json['id']),
         datetime: DateTime.parse(json['datetime']),
-        location: json['location'] as String,
+        location: json['ort'] as String,
         antragsfrist: DateTime.parse(json['antragsfrist']),
         legislaturPeriode:
-            LegislaturPeriode.fromJson(json['legislative_period']));
+            LegislaturPeriode.fromJson(json['legislatur_periode']));
   }
 
   static Future<List<Sitzung>> fetchSitzungen() async {

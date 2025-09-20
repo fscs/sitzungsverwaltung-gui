@@ -141,14 +141,14 @@ class Lib {
       TextEditingController antragstextController,
       BuildContext context) async {
     final token = await OAuth.getToken(context);
-    await http.post(Uri.parse("${const String.fromEnvironment("API_BASE_URL")}api/anträge/"),
+    await http.post(Uri.parse("${const String.fromEnvironment("API_BASE_URL")}api/antraege/"),
         headers: {
           "Authorization": "Bearer $token",
           "Content-Type": "application/json; charset=UTF-8"
         },
         body: jsonEncode({
           "titel": titleController.text,
-          "begründung": begruendungController.text,
+          "begruendung": begruendungController.text,
           "antragstext": antragstextController.text,
         }));
   }

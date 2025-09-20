@@ -39,7 +39,7 @@ class Antrag {
     }
 
     List<String> creators = [];
-    for (var creator in json2['creators']) {
+    for (var creator in json2['ersteller']) {
       persons.forEach((element) {
         if (element.id.toString() == creator) {
           creators.add(element.fullName);
@@ -51,10 +51,10 @@ class Antrag {
       id: UuidValue.fromString(json2['id']),
       title: json2['titel'] as String,
       antragstext: json2['antragstext'] as String,
-      begruendung: json2['begründung'] as String,
+      begruendung: json2['begruendung'] as String,
       creators:
           creators.toSet().toList(), // List of creators after async fetching
-      createdAt: DateTime.parse(json2['created_at']),
+      createdAt: DateTime.parse(json2['erstellt_am']),
     );
   }
 
@@ -63,19 +63,19 @@ class Antrag {
         id: UuidValue.fromString(json['id']),
         title: json['titel'] as String,
         antragstext: json['antragstext'] as String,
-        begruendung: json['begründung'] as String,
-        creators: json['creators'] as List<dynamic>,
-        createdAt: DateTime.parse(json['created_at']));
+        begruendung: json['begruendung'] as String,
+        creators: json['ersteller'] as List<dynamic>,
+        createdAt: DateTime.parse(json['erstellt_am']));
   }
 
   static Future<List<Antrag>> fetchAntraege(bool all) async {
     var search = AntragsListViewState.antragsSearchController.value.text;
     var response;
     if (all) {
-      response = await http.get(Uri.parse('${const String.fromEnvironment("API_BASE_URL")}api/anträge/'));
+      response = await http.get(Uri.parse('${const String.fromEnvironment("API_BASE_URL")}api/antraege/'));
     } else {
       response =
-          await http.get(Uri.parse('${const String.fromEnvironment("API_BASE_URL")}api/anträge/orphans/'));
+          await http.get(Uri.parse('${const String.fromEnvironment("API_BASE_URL")}api/antraege/orphans/'));
     }
 
     if (response.statusCode == 200) {
@@ -87,7 +87,7 @@ class Antrag {
         if (search != null) {
           if (antrag['titel'].contains(search) ||
               antrag['antragstext'].contains(search) ||
-              antrag['begründung'].contains(search)) {
+              antrag['begruendung'].contains(search)) {
             antraege.add(await fromJsonAsync(antrag));
           }
         } else

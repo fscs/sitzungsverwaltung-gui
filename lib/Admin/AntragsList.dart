@@ -426,18 +426,15 @@ class AntragsListViewState extends State<AntragsListView> {
       TextEditingController begruendungController,
       TextEditingController antragstextController) async {
     final token = await OAuth.getToken(context);
-    var username = await Lib.getUsernameFromAccessToken(context);
-    final antragsteller = await Lib.getIDByUsername(username, context);
-    await http.post(Uri.parse("${const String.fromEnvironment("API_BASE_URL")}api/anträge/"),
+    await http.post(Uri.parse("${const String.fromEnvironment("API_BASE_URL")}api/antraege/"),
         headers: {
           "Authorization": "Bearer $token",
           "Content-Type": "application/json; charset=UTF-8"
         },
         body: jsonEncode({
           "titel": titleController.text,
-          "begründung": begruendungController.text,
+          "begruendung": begruendungController.text,
           "antragstext": antragstextController.text,
-          "antragssteller": [antragsteller.toString()]
         }));
     setState(() {
       futureAntraege = Antrag.fetchAntraege(showAllAntraege);
@@ -832,14 +829,14 @@ class AntragsListViewState extends State<AntragsListView> {
   Future<void> editAntrag(UuidValue antragid, String titel, String begruendung,
       String antragstext) async {
     final token = await OAuth.getToken(context);
-    await http.patch(Uri.parse("${const String.fromEnvironment("API_BASE_URL")}api/anträge/$antragid/"),
+    await http.patch(Uri.parse("${const String.fromEnvironment("API_BASE_URL")}api/antraege/$antragid/"),
         headers: {
           "Authorization": "Bearer $token",
           "Content-Type": "application/json; charset=UTF-8"
         },
         body: jsonEncode({
           "titel": titel,
-          "begründung": begruendung,
+          "begruendung": begruendung,
           "antragstext": antragstext,
         }));
     setState(() {
@@ -901,7 +898,7 @@ class AntragsListViewState extends State<AntragsListView> {
                       maxLines: 6,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
-                        labelText: 'Begeündung',
+                        labelText: 'Begründung',
                         labelStyle: TextStyle(color: Colors.white70),
                       ),
                     ),
@@ -979,7 +976,7 @@ class AntragsListViewState extends State<AntragsListView> {
   Future<void> deleteAntrag(UuidValue id) async {
     final token = await OAuth.getToken(context);
     await http
-        .delete(Uri.parse("${const String.fromEnvironment("API_BASE_URL")}api/anträge/$id/"), headers: {
+        .delete(Uri.parse("${const String.fromEnvironment("API_BASE_URL")}api/antraege/$id/"), headers: {
       "Authorization": "Bearer $token",
       "Content-Type": "application/json; charset=UTF-8"
     });

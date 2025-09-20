@@ -15,7 +15,7 @@ class Person {
 
   factory Person.fromJson(Map<String, dynamic> json) {
     return Person(
-      fullName: json['full_name'] as String,
+      fullName: json['name'] as String,
       id: UuidValue.fromString(json['id']),
     );
   }

@@ -534,14 +534,14 @@ class TopListViewState extends State<TopListView> {
     final token = await OAuth.getToken(context);
     await http.patch(
         Uri.parse(
-            "${const String.fromEnvironment("API_BASE_URL")}api/anträge/$antragid/"),
+            "${const String.fromEnvironment("API_BASE_URL")}api/antraege/$antragid/"),
         headers: {
           "Authorization": "Bearer $token",
           "Content-Type": "application/json; charset=UTF-8"
         },
         body: jsonEncode({
           "titel": titel,
-          "begründung": begruendung,
+          "begruendung": begruendung,
           "antragstext": antragstext,
         }));
     setState(() {
@@ -811,7 +811,7 @@ class TopListViewState extends State<TopListView> {
                       maxLines: 6,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
-                        labelText: 'Begeündung',
+                        labelText: 'Begründung',
                         labelStyle: TextStyle(color: Colors.white70),
                       ),
                     ),
@@ -890,7 +890,7 @@ class TopListViewState extends State<TopListView> {
     final token = await OAuth.getToken(context);
     await http.delete(
         Uri.parse(
-            "${const String.fromEnvironment("API_BASE_URL")}api/anträge/$id/"),
+            "${const String.fromEnvironment("API_BASE_URL")}api/antraege/$id/"),
         headers: {
           "Authorization": "Bearer $token",
           "Content-Type": "application/json; charset=UTF-8"

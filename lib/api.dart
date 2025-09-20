@@ -23,10 +23,10 @@ Future<Sitzung> createSitzung(
           },
           body: jsonEncode({
             "kind": kind.name,
-            "location": location,
+            "ort": location,
             "datetime": date.toUtc().toIso8601String(),
             "antragsfrist": antragsfrist.toUtc().toIso8601String(),
-            "legislative_period": legislaturId.toString()
+            "legislatur_periode_id": legislaturId.toString()
           }));
 
   if (response.statusCode >= 201) {
@@ -53,10 +53,10 @@ Future<Sitzung> updateSitzung(
       },
       body: jsonEncode({
         "kind": kind.name,
-        "location": location,
+        "ort": location,
         "datetime": date.toUtc().toIso8601String(),
         "antragsfrist": antragsfrist.toUtc().toIso8601String(),
-        "legislative_period": legislaturId.toString()
+        "legislatur_periode_id": legislaturId.toString()
       }));
 
   if (response.statusCode == 200) {

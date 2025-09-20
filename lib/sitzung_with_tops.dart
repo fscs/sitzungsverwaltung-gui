@@ -23,10 +23,10 @@ class SitzungWithTops {
   factory SitzungWithTops.fromJson(Map<String, dynamic> json) {
     return switch (json) {
       {
-        'kind': SitzungKind kind,
+        'typ': SitzungKind kind,
         'id': Uuid id,
         'datetime': DateTime datetime,
-        'location': String location,
+        'ort': String location,
         'tops': List<Top> tops,
       } =>
         SitzungWithTops(

@@ -362,7 +362,7 @@ class SitzungDialogState extends State<SitzungDialog> {
         children: <Widget>[
           const SizedBox(height: 10),
           Row(mainAxisSize: MainAxisSize.min, children: [
-            const Text('Kind', style: TextStyle(color: Colors.white)),
+            const Text('Typ', style: TextStyle(color: Colors.white)),
             const SizedBox(width: 10),
             SizedBox(
               width: 120,
